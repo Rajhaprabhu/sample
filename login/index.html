@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Sign in · AP Portal</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main class="layout">
+    <section class="brand-panel" aria-hidden="true">
+      <div class="brand">
+        <span class="logo">AP</span>
+        <span class="brand-name">AP Portal</span>
+      </div>
+      <h2>Accounts payable, under control.</h2>
+      <ul class="features">
+        <li>Capture and approve vendor invoices</li>
+        <li>Schedule payments and track due dates</li>
+        <li>Full audit trail for every transaction</li>
+      </ul>
+    </section>
+
+    <section class="form-panel">
+      <form id="login-form" class="card" novalidate>
+        <h1>Sign in</h1>
+        <p class="subtitle">Use your work account to access the AP Portal.</p>
+
+        <div id="form-error" class="alert" role="alert" hidden></div>
+
+        <div class="field">
+          <label for="email">Work email</label>
+          <input id="email" name="email" type="email" autocomplete="username"
+                 placeholder="name@company.com" required>
+          <p class="field-error" id="email-error"></p>
+        </div>
+
+        <div class="field">
+          <div class="label-row">
+            <label for="password">Password</label>
+            <a href="#" class="link" id="forgot-link">Forgot password?</a>
+          </div>
+          <div class="password-wrap">
+            <input id="password" name="password" type="password"
+                   autocomplete="current-password" minlength="8" required>
+            <button type="button" class="toggle" id="toggle-password"
+                    aria-label="Show password" aria-pressed="false">Show</button>
+          </div>
+          <p class="field-error" id="password-error"></p>
+        </div>
+
+        <label class="checkbox">
+          <input type="checkbox" name="remember" id="remember">
+          Keep me signed in on this device
+        </label>
+
+        <button type="submit" class="primary" id="submit-btn">
+          <span class="btn-label">Sign in</span>
+          <span class="spinner" aria-hidden="true"></span>
+        </button>
+
+        <p class="footnote">
+          Access is restricted to authorized finance staff. Activity is logged.
+        </p>
+      </form>
+    </section>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>
