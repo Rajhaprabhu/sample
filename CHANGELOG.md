@@ -4,6 +4,20 @@ All notable changes to AP Portal are listed here. Versions follow
 [Semantic Versioning](https://semver.org/). Build numbers use the
 format `YYYYMMDD.N` (date of the build, then the build count that day).
 
+## Unreleased
+
+### Added
+- **Database schema** (`db/`, PostgreSQL 14+) for every screen built so far: users,
+  roles, sessions and password reset tokens; vendor master with verified bank
+  accounts; purchase orders and goods receipts; invoices, lines, documents and
+  match results; approval rules and steps; holds; rejections; payment runs,
+  payments and allocations; and an append-only audit trail.
+- Workflow functions `submit_invoice()` and `approve_invoice()`, and dashboard views
+  `v_dashboard_status_summary`, `v_dashboard_aging` and `v_invoice_list`.
+- The database enforces the screens' rules too: duplicates, balanced totals,
+  approval comments, approval chain by amount, and separation of duties.
+- Sample data matching the demo (`db/seed.sql`) and 23 checks (`db/tests/workflow_test.sql`).
+
 ## 1.4.0 (build 20261027.5) – 2026-10-27
 
 ### Added
