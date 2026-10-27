@@ -98,7 +98,7 @@ body {
 .ghost:hover { border-color: var(--primary); }
 
 /* Page */
-.page { max-width: 1200px; margin: 0 auto; padding: 24px; }
+.page { max-width: 1200px; margin: 0 auto; padding: 24px 24px 40px; }
 .page-head { display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; flex-wrap: wrap; }
 .page-head h1 { margin: 0 0 4px; font-size: 1.6rem; }
 .page-head p { margin: 0; }
@@ -216,3 +216,16 @@ th { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.03em; color
   .controls input { min-width: 0; flex: 1; }
   .user-name { display: none; }
 }
+
+/* Application footer (content filled in by shared/app-info.js) */
+.app-footer {
+  padding: 16px 24px;
+  border-top: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--muted);
+  font-size: 0.8rem;
+  line-height: 1.5;
+  text-align: center;
+}
+.app-footer p { margin: 0; }
+.app-footer .sep { margin: 0 6px; }
