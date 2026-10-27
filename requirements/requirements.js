@@ -483,8 +483,15 @@ function openNewForm(trigger) {
 
   const form = drawerBody.querySelector('#new-form');
   const need = form.querySelector('#f-need');
-  form.addEventListener('input', () => { formDirty = true; });
-  form.addEventListener('change', () => { formDirty = true; });
+  // Clear a field's error as soon as it is changed.
+  const edited = (e) => {
+    formDirty = true;
+    if (e.target.getAttribute('aria-invalid') !== 'true') return;
+    e.target.removeAttribute('aria-invalid');
+    form.querySelector(`#${e.target.id}-error`).textContent = '';
+  };
+  form.addEventListener('input', edited);
+  form.addEventListener('change', edited);
   need.addEventListener('input', () => {
     form.querySelector('#f-need-count').textContent = `${need.value.length} / 1000`;
   });
