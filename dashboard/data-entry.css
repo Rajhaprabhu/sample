@@ -1,7 +1,5 @@
 /* Data entry page. Builds on dashboard/styles.css (tokens, panels, pills). */
 
-a.brand { color: inherit; text-decoration: none; }
-
 .breadcrumb ol { list-style: none; margin: 0 0 12px; padding: 0; display: flex; flex-wrap: wrap; gap: 6px; font-size: 0.85rem; }
 .breadcrumb li + li::before { content: "›"; margin-right: 6px; color: var(--muted); }
 .breadcrumb a { color: var(--primary); }

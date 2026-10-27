@@ -1,9 +1,9 @@
 # AP Portal
 
 A web front end for an accounts payable application: sign in, review invoices by
-status and age, and reset a forgotten password.
+status and age, gather requirements for the AP system, and reset a forgotten password.
 
-**Version 1.4.0** (build 20261027.5) · Developed by Claude Code · Licensed to Rajha
+**Version 1.5.0** (build 20261027.6) · Developed by Claude Code · Licensed to Rajha
 
 ## Pages
 
@@ -14,6 +14,7 @@ status and age, and reset a forgotten password.
 | Choose a new password | `login/reset-password.html` |
 | Invoice dashboard (click an invoice for its details) | `dashboard/index.html` |
 | Data entry for received invoices | `dashboard/data-entry.html?id=INV-10421` |
+| AP requirements: submit, vote, comment, track status, export CSV | `requirements/index.html` (link to one with `#REQ-003`) |
 | Help & support, privacy policy, terms of use, accessibility, security reporting | `info/*.html` |
 
 Every page shares one footer (`shared/app-info.js` and `shared/footer.css`) with
@@ -36,7 +37,9 @@ any valid email and a password of 8 or more characters.
 This is a front-end demo. Sign-in, password reset emails and invoice data are
 placeholders that need to be connected to a backend before real use. Changes
 made on the data entry page are kept in the browser's local storage (use
-**Reset demo changes** on the dashboard to undo them); see `dashboard/invoice-store.js`. See the
+**Reset demo changes** on the dashboard to undo them); see `dashboard/invoice-store.js`.
+Requirements, votes and comments are kept the same way, starting from the samples in
+`requirements/requirements-data.js` (**Reset demo changes** on the requirements page undoes them). See the
 comments in `login/script.js`, `login/forgot-password.js`,
 `login/reset-password.js` and `dashboard/data.js`.
 

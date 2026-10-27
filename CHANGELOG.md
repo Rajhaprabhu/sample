@@ -4,6 +4,28 @@ All notable changes to AP Portal are listed here. Versions follow
 [Semantic Versioning](https://semver.org/). Build numbers use the
 format `YYYYMMDD.N` (date of the build, then the build count that day).
 
+## 1.5.0 (build 20261027.6) – 2026-10-27
+
+### Added
+- **Requirements portal** (`requirements/index.html`) for gathering what the AP system needs to do.
+  Open it from **Requirements** in the new top bar navigation.
+  - **New requirement** form: title, AP process area, type (functional, non-functional,
+    report, integration, compliance), MoSCoW priority, department, business need
+    (as a user story), acceptance criteria (one per line) and an optional needed-by date.
+    Everything is checked before submitting, and an exact duplicate title is refused.
+  - Counts by status (New, Under review, Approved, In progress, Delivered, Rejected) and
+    open requirements by AP process area, showing areas with nothing raised yet. Both filter the list.
+  - List with search, area and priority filters, and sorting by newest, priority or votes.
+  - Details panel with **+1 I need this too** votes (not on your own requests), comments,
+    status changes (a reason is required to reject) and a history of changes.
+  - **Export CSV** of the filtered list, ready for Excel.
+  - **Reset demo changes** restores the sample requirements.
+
+### Changed
+- The top bar on the dashboard and data entry pages links to **Invoices** and **Requirements**.
+  On the data entry page these links ask before discarding unsaved changes.
+- The privacy policy explains that demo changes are kept in the browser.
+
 ## 1.4.0 (build 20261027.5) – 2026-10-27
 
 ### Added

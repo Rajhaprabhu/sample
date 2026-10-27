@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Requirements · AP Portal</title>
+  <link rel="stylesheet" href="../dashboard/styles.css">
+  <link rel="stylesheet" href="../dashboard/data-entry.css">
+  <link rel="stylesheet" href="requirements.css">
+  <link rel="stylesheet" href="../shared/footer.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-left">
+      <a class="brand" href="../dashboard/index.html">
+        <span class="logo">AP</span>
+        <span class="brand-name">AP Portal</span>
+      </a>
+      <nav class="app-nav" aria-label="Main">
+        <a href="../dashboard/index.html">Invoices</a>
+        <a href="index.html" aria-current="page">Requirements</a>
+      </nav>
+    </div>
+    <div class="user">
+      <span id="user" class="user-chip">
+        <span id="user-initials" class="avatar" aria-hidden="true"></span>
+        <span id="user-name" class="user-name"></span>
+      </span>
+      <button type="button" id="sign-out" class="ghost">Sign out</button>
+    </div>
+  </header>
+
+  <main class="page" id="top" tabindex="-1">
+    <div class="page-head">
+      <div>
+        <h1>AP requirements</h1>
+        <p class="muted">Tell us what the AP system needs to do. Vote for requests you share and follow them from review to delivery. <span class="badge">Demo data</span></p>
+      </div>
+      <div class="head-actions">
+        <button type="button" id="reset-demo" class="ghost small-btn" hidden>Reset demo changes</button>
+        <button type="button" id="export-csv" class="ghost">Export CSV</button>
+        <button type="button" id="new-req" class="btn-primary">+ New requirement</button>
+      </div>
+    </div>
+
+    <section aria-labelledby="status-heading">
+      <h2 id="status-heading" class="section-title">Requirements by status</h2>
+      <p class="muted small">Click a status to filter the list.</p>
+      <div id="status-buckets" class="bucket-grid"></div>
+    </section>
+
+    <section class="panel" aria-labelledby="area-heading">
+      <div class="panel-head">
+        <h2 id="area-heading" class="section-title">Coverage by AP process area</h2>
+        <p class="muted small">Open requirements (excludes delivered and rejected) · click an area to filter</p>
+      </div>
+      <div id="area-coverage" class="area-grid"></div>
+    </section>
+
+    <section class="panel" aria-labelledby="list-heading">
+      <div class="panel-head">
+        <div>
+          <h2 id="list-heading" class="section-title">Requirements <span id="list-filter" class="muted"></span></h2>
+          <p class="muted small">Click a requirement to see its details, vote, comment or change its status.</p>
+        </div>
+        <div class="controls req-controls">
+          <input type="search" id="search" placeholder="Search title, ID or requester" aria-label="Search requirements">
+          <select id="filter-area" aria-label="Filter by area"><option value="">All areas</option></select>
+          <select id="filter-priority" aria-label="Filter by priority"><option value="">All priorities</option></select>
+          <select id="sort" aria-label="Sort by">
+            <option value="newest">Newest first</option>
+            <option value="priority">Priority</option>
+            <option value="votes">Most votes</option>
+          </select>
+          <button type="button" id="clear-filter" class="ghost" hidden>Clear filters</button>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th scope="col">ID</th>
+              <th scope="col">Requirement</th>
+              <th scope="col">Type</th>
+              <th scope="col">Priority</th>
+              <th scope="col">Requested by</th>
+              <th scope="col" class="num">Votes</th>
+              <th scope="col">Status</th>
+            </tr>
+          </thead>
+          <tbody id="req-rows"></tbody>
+        </table>
+        <p id="empty" class="empty" hidden>No requirements match.</p>
+      </div>
+    </section>
+  </main>
+
+  <footer class="app-footer"></footer>
+
+  <div id="drawer-backdrop" class="drawer-backdrop" hidden></div>
+  <aside id="req-drawer" class="drawer" role="dialog" aria-modal="true" aria-labelledby="drawer-title" hidden>
+    <div class="drawer-bar">
+      <button type="button" id="drawer-close" class="drawer-close" aria-label="Close">✕</button>
+    </div>
+    <div id="drawer-body" class="drawer-body"></div>
+  </aside>
+
+  <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+
+  <script src="requirements-data.js"></script>
+  <script src="../dashboard/session.js"></script>
+  <script src="requirements.js"></script>
+  <script src="../shared/app-info.js"></script>
+</body>
+</html>
