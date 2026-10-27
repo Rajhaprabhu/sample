@@ -1,0 +1,155 @@
+:root {
+  --bg: #f4f6fa;
+  --surface: #ffffff;
+  --text: #1c2333;
+  --muted: #5d6679;
+  --border: #d5dbe5;
+  --primary: #1f5eff;
+  --primary-hover: #1749cc;
+  --danger: #c62828;
+  --danger-bg: #fdecec;
+  --brand-bg: #0f1e3d;
+  --brand-text: #e6ecf8;
+  --radius: 10px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0d1117;
+    --surface: #161b25;
+    --text: #e6e9ef;
+    --muted: #9aa3b5;
+    --border: #2c3445;
+    --primary: #4d7dff;
+    --primary-hover: #6b93ff;
+    --danger: #ff6b6b;
+    --danger-bg: #3a1c1f;
+    --brand-bg: #0a1430;
+  }
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  min-height: 100vh;
+}
+
+/* Brand panel */
+.brand-panel {
+  background: var(--brand-bg);
+  color: var(--brand-text);
+  padding: 48px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 24px;
+}
+.brand { display: flex; align-items: center; gap: 12px; }
+.logo {
+  display: grid; place-items: center;
+  width: 44px; height: 44px;
+  border-radius: 10px;
+  background: var(--primary);
+  color: #fff; font-weight: 700;
+}
+.brand-name { font-size: 1.25rem; font-weight: 600; }
+.brand-panel h2 { font-size: 2rem; line-height: 1.2; margin: 0; max-width: 18ch; }
+.features { margin: 0; padding-left: 20px; line-height: 2; opacity: 0.85; }
+
+/* Form panel */
+.form-panel { display: grid; place-items: center; padding: 32px 16px; }
+.card {
+  width: 100%;
+  max-width: 400px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 32px;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
+}
+.card h1 { margin: 0 0 4px; font-size: 1.6rem; }
+.subtitle { margin: 0 0 24px; color: var(--muted); }
+
+.field { margin-bottom: 18px; }
+.label-row { display: flex; justify-content: space-between; align-items: baseline; }
+label { display: block; font-weight: 600; font-size: 0.9rem; margin-bottom: 6px; }
+
+input[type="email"],
+input[type="password"],
+input[type="text"] {
+  width: 100%;
+  padding: 11px 12px;
+  font-size: 1rem;
+  color: var(--text);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+input:focus { outline: 2px solid var(--primary); outline-offset: 1px; border-color: var(--primary); }
+input[aria-invalid="true"] { border-color: var(--danger); }
+
+.password-wrap { position: relative; }
+.password-wrap input { padding-right: 64px; }
+.toggle {
+  position: absolute; right: 6px; top: 50%; transform: translateY(-50%);
+  border: 0; background: none; color: var(--primary);
+  font-weight: 600; cursor: pointer; padding: 6px 8px;
+}
+
+.field-error { color: var(--danger); font-size: 0.85rem; margin: 6px 0 0; min-height: 1em; }
+
+.alert {
+  background: var(--danger-bg);
+  color: var(--danger);
+  border-radius: 8px;
+  padding: 10px 12px;
+  margin-bottom: 18px;
+  font-size: 0.9rem;
+}
+.alert.success { background: #e7f6ec; color: #1b7a3a; }
+
+.checkbox { display: flex; align-items: center; gap: 8px; font-weight: 400; margin-bottom: 22px; }
+
+.link { color: var(--primary); text-decoration: none; font-size: 0.85rem; }
+.link:hover { text-decoration: underline; }
+
+.primary {
+  width: 100%;
+  display: flex; justify-content: center; align-items: center; gap: 10px;
+  padding: 12px;
+  font-size: 1rem; font-weight: 600;
+  color: #fff;
+  background: var(--primary);
+  border: 0; border-radius: 8px;
+  cursor: pointer;
+}
+.primary:hover { background: var(--primary-hover); }
+.primary:disabled { opacity: 0.7; cursor: wait; }
+
+.spinner {
+  display: none;
+  width: 16px; height: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.5);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+.loading .spinner { display: inline-block; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.footnote { margin: 20px 0 0; font-size: 0.8rem; color: var(--muted); text-align: center; }
+
+@media (max-width: 800px) {
+  .layout { grid-template-columns: 1fr; }
+  .brand-panel { display: none; }
+  .card { padding: 24px; }
+}
