@@ -222,7 +222,7 @@ function getInvoiceDetails(inv) {
   let subtotal = Math.round(((inv.amount - shipping) / (1 + TAX_RATE)) * 100) / 100;
   let tax = Math.round((inv.amount - shipping - subtotal) * 100) / 100;
   let lines = buildLines(vendor, subtotal, seed);
-  if (edit) {
+  if (edit?.lines) {
     ({ shipping, tax } = edit);
     lines = edit.lines;
     subtotal = Math.round(lines.reduce((sum, l) => sum + l.amount, 0) * 100) / 100;
@@ -238,11 +238,14 @@ function getInvoiceDetails(inv) {
   if (discount) discount.amount = Math.round(inv.amount * discount.rate * 100) / 100;
 
   let poNumber = vendor.matching === 'Non-PO' || vendor.matching === 'None' ? null : `PO-${4500 + (seed % 400)}`;
-  if (edit) poNumber = edit.poNumber || null;
+  if (edit?.lines) poNumber = edit.poNumber || null;
   const channel = ['Email to AP inbox', 'Supplier portal', 'EDI'][seed % 3];
 
-  // Approval chain: who signs off, and how far it has got.
+  // Approval chain: who signs off, and how far it has got. Approvals given on
+  // this site (edit.approvals) are applied on top of where the chain started.
   const chainKeys = approversFor(inv.amount, vendor);
+  const savedApprovals = edit?.approvals || [];
+  const chainStatus = savedApprovals.length ? 'pending' : inv.status;
   const approvedCount = {
     received: 0,
     pending: Math.max(0, chainKeys.length - 1 - (seed % 2)),
@@ -251,9 +254,9 @@ function getInvoiceDetails(inv) {
     paid: chainKeys.length,
     on_hold: 0, // holds stop the invoice before approval
     rejected: 0,
-  }[inv.status];
+  }[chainStatus];
   const submittedOn = edit?.submittedAt ? new Date(edit.submittedAt) : addDays(receivedOn, 1);
-  const justSubmitted = Boolean(edit?.submittedAt) && inv.status === 'pending';
+  const justSubmitted = Boolean(edit?.submittedAt) && chainStatus === 'pending';
   const approvals = chainKeys.map((key, i) => {
     if (justSubmitted) {
       return i === 0
@@ -262,11 +265,20 @@ function getInvoiceDetails(inv) {
     }
     const decidedOn = addDays(submittedOn, 1 + i * 2);
     if (i < approvedCount) return { ...PEOPLE[key], state: 'approved', on: at(decidedOn, 10 + i, 15) };
-    if (i === approvedCount && inv.status === 'pending') {
+    if (i === approvedCount && chainStatus === 'pending') {
       const since = i === 0 ? submittedOn : addDays(submittedOn, 1 + (i - 1) * 2);
       return { ...PEOPLE[key], state: 'waiting', since, days: Math.max(0, dayDiff(today, since)) };
     }
     return { ...PEOPLE[key], state: 'not-started' };
+  });
+  savedApprovals.forEach((a) => {
+    const i = approvals.findIndex((step) => step.state === 'waiting');
+    if (i < 0) return;
+    const on = new Date(a.at);
+    approvals[i] = { name: a.by, role: approvals[i].role, state: 'approved', on, comment: a.comment };
+    if (approvals[i + 1]) {
+      approvals[i + 1] = { ...approvals[i + 1], state: 'waiting', since: on, days: Math.max(0, dayDiff(today, startOfDay(on))) };
+    }
   });
   const lastApproval = approvals.filter((a) => a.state === 'approved').pop();
 
@@ -316,7 +328,7 @@ function getInvoiceDetails(inv) {
     activity.push({ on: at(submittedOn, 11, 40), who: PEOPLE.apClerk.name, what: 'Coded and submitted for approval' });
   }
   approvals.filter((a) => a.state === 'approved').forEach((a) => {
-    activity.push({ on: a.on, who: a.name, what: 'Approved' });
+    activity.push({ on: a.on, who: a.name, what: a.comment ? `Approved: "${a.comment}"` : 'Approved' });
   });
   if (override.hold) {
     activity.push({ on: at(addDays(submittedOn, 3), 15, 5), who: 'System', what: `Placed on hold: ${override.hold.type.toLowerCase()}` });

@@ -36,8 +36,9 @@ function hasInvoiceEdits() {
   return Object.keys(loadInvoiceEdits()).length > 0;
 }
 
-// Applies saved changes to an invoice from data.js. Dates are stored as
-// YYYY-MM-DD strings and turned back into local dates here.
+// Applies saved changes to an invoice from data.js. A change can be a full
+// data entry record or just a status change (e.g. an approval), so any field
+// may be missing. Dates are stored as YYYY-MM-DD strings.
 function applyInvoiceEdit(inv, edit) {
   if (!edit) return inv;
   const toDate = (s) => {
@@ -46,12 +47,12 @@ function applyInvoiceEdit(inv, edit) {
   };
   return {
     ...inv,
-    number: edit.number,
-    vendor: edit.vendor,
-    invoiceDate: toDate(edit.invoiceDate),
-    dueDate: toDate(edit.dueDate),
-    amount: edit.total,
-    status: edit.status,
+    number: edit.number ?? inv.number,
+    vendor: edit.vendor ?? inv.vendor,
+    invoiceDate: edit.invoiceDate ? toDate(edit.invoiceDate) : inv.invoiceDate,
+    dueDate: edit.dueDate ? toDate(edit.dueDate) : inv.dueDate,
+    amount: edit.total ?? inv.amount,
+    status: edit.status ?? inv.status,
     edit,
   };
 }

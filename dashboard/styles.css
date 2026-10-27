@@ -392,3 +392,32 @@ table.lines td.num, table.lines th.num { white-space: nowrap; }
 .head-meta p { margin: 0; }
 .small-btn { padding: 4px 10px; font-size: 0.8rem; }
 a.btn-primary { text-decoration: none; display: inline-flex; align-items: center; }
+
+/* Approval form in the invoice details panel */
+.approve-form {
+  display: flex; flex-direction: column; gap: 8px;
+  padding: 14px 16px;
+  border: 1px solid var(--border); border-left: 4px solid var(--primary); border-radius: var(--radius);
+  background: var(--surface);
+}
+.approve-form.tone-warn { border-left-color: var(--s-pending); }
+.approve-form:focus { outline: 2px solid var(--primary); outline-offset: 2px; }
+.approve-form h3 { margin: 0; font-size: 1rem; }
+.approve-form p { margin: 0; }
+.approve-form label { font-weight: 600; font-size: 0.9rem; }
+.approve-form .req { color: var(--danger); font-weight: 400; }
+.approve-form textarea {
+  width: 100%; padding: 8px 10px; font: inherit; font-size: 0.95rem; resize: vertical;
+  color: var(--text); background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+}
+.approve-form textarea:focus { outline: 2px solid var(--primary); outline-offset: 1px; border-color: var(--primary); }
+.approve-form textarea[aria-invalid="true"] { border-color: var(--danger); }
+.approve-form .field-error { margin: 0; color: var(--danger); font-size: 0.85rem; }
+.approve-form .field-error:empty { display: none; }
+.approve-buttons { display: flex; flex-wrap: wrap; gap: 8px; }
+.status-panel:focus { outline: 2px solid var(--primary); outline-offset: 2px; }
+.ap-comment {
+  margin: 4px 0 0; padding: 4px 10px;
+  border-left: 3px solid var(--border);
+  font-size: 0.88rem; font-style: italic; color: var(--text);
+}

@@ -38,6 +38,7 @@ const toast = document.getElementById('toast');
 const pageRegions = ['.topbar', 'main', '.app-footer'].map((s) => document.querySelector(s));
 const dateTimeFmt = new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
 let returnFocusTo = null;
+let currentInvoiceId = null;
 let toastTimer = null;
 
 function esc(value) {
@@ -131,6 +132,7 @@ function renderStatusPanel(inv, d) {
       return panel(days > 0 ? 'warn' : 'ok', 'Approved and ready to pay', `
         <p>Fully approved${d.approvals.length ? ` by ${esc(d.approvals[d.approvals.length - 1].name)} on ${fmtDate(d.approvals[d.approvals.length - 1].on)}` : ''}.
         The next payment run is <strong>${fmtDate(run)}</strong>.</p>
+        ${d.approvals.length && d.approvals[d.approvals.length - 1].comment ? `<blockquote class="ap-comment">${esc(d.approvals[d.approvals.length - 1].comment)}</blockquote>` : ''}
         ${days > 0 ? `<p><strong>${plural(days, 'day')} past due.</strong> Schedule it on the next run to avoid late fees and keep the vendor relationship healthy.</p>` : ''}
         ${discountNote(d, today)}
       `);
@@ -302,7 +304,8 @@ function renderApprovals(d) {
   const label = { approved: 'Approved', waiting: 'Waiting', 'not-started': 'Not started' };
   const items = d.approvals.map((a) => {
     const when = a.state === 'approved' ? dateTimeFmt.format(a.on) : a.state === 'waiting' ? `since ${fmtDate(a.since)}` : '';
-    return `<li class="ap-${a.state}"><span class="ap-dot" aria-hidden="true"></span><div><div>${personLine(a)}</div><div class="small muted">${label[a.state]}${when ? ` · ${when}` : ''}</div></div></li>`;
+    const comment = a.comment ? `<blockquote class="ap-comment">${esc(a.comment)}</blockquote>` : '';
+    return `<li class="ap-${a.state}"><span class="ap-dot" aria-hidden="true"></span><div><div>${personLine(a)}</div><div class="small muted">${label[a.state]}${when ? ` · ${when}` : ''}</div>${comment}</div></li>`;
   }).join('');
   return `
     <section class="d-section" aria-labelledby="sec-approvals">
@@ -354,7 +357,7 @@ function renderActivity(d) {
 
 // ---------- open / close ----------
 
-function openInvoice(number, trigger) {
+function openInvoice(number, trigger, { refresh = false } = {}) {
   const inv = INVOICES.find((i) => i.id === number);
   if (!inv) return;
   const d = getInvoiceDetails(inv);
@@ -364,6 +367,7 @@ function openInvoice(number, trigger) {
     ${renderProgress(inv)}
     ${renderStatusPanel(inv, d)}
     ${renderActions(inv)}
+    <div id="approve-slot"></div>
     ${renderSummary(inv, d)}
     ${renderAmounts(d)}
     ${renderLines(d)}
@@ -374,6 +378,14 @@ function openInvoice(number, trigger) {
     ${renderActivity(d)}
   `;
   drawerBody.scrollTop = 0;
+  currentInvoiceId = number;
+  if (refresh) {
+    // Keep where focus returns to, and move focus to the updated status.
+    const panel = drawerBody.querySelector('.status-panel');
+    panel.tabIndex = -1;
+    panel.focus();
+    return;
+  }
 
   returnFocusTo = trigger || document.activeElement;
   drawer.hidden = false;
@@ -409,8 +421,122 @@ backdrop.addEventListener('click', closeInvoice);
 
 drawer.addEventListener('click', (e) => {
   const button = e.target.closest('[data-action]');
-  if (button) showToast(`"${button.dataset.action}" is not connected yet. This is a demo.`);
+  if (!button) return;
+  if (button.dataset.action === 'Approve') showApproveForm();
+  else showToast(`"${button.dataset.action}" is not connected yet. This is a demo.`);
 });
+
+// ---------- approving ----------
+
+const MIN_COMMENT = 10;
+
+// "Finance controller" -> "finance controller", but keep "IT manager" as is.
+function roleInSentence(role) {
+  return /^[A-Z]{2}/.test(role) ? role : role.charAt(0).toLowerCase() + role.slice(1);
+}
+
+// Returns a reason the signed-in user may not approve this invoice, or null.
+// Separation of duties: whoever entered an invoice, or approved an earlier
+// step, can't approve it (again).
+function approvalBlockedReason(inv) {
+  const edit = inv.edit;
+  if (edit?.submittedAt && edit.savedBy === user.name) {
+    return 'You entered and submitted this invoice, so someone else must approve it. This keeps duties separate. To try approving, sign out and sign in with a different email.';
+  }
+  if ((edit?.approvals || []).some((a) => a.by === user.name)) {
+    return 'You have already approved an earlier step, so the next step needs a different approver. To try it, sign out and sign in with a different email.';
+  }
+  return null;
+}
+
+function showApproveForm() {
+  const inv = INVOICES.find((i) => i.id === currentInvoiceId);
+  const d = getInvoiceDetails(inv);
+  const stepIndex = d.approvals.findIndex((a) => a.state === 'waiting');
+  const step = d.approvals[stepIndex];
+  const next = d.approvals[stepIndex + 1];
+  const slot = document.getElementById('approve-slot');
+  const blocked = approvalBlockedReason(inv);
+
+  if (blocked) {
+    slot.innerHTML = `<div class="approve-form tone-warn" tabindex="-1" id="approve-box"><h3>You can't approve this invoice</h3><p>${esc(blocked)}</p>
+      <button type="button" class="ghost" id="approve-cancel">Close</button></div>`;
+    document.getElementById('approve-cancel').addEventListener('click', hideApproveForm);
+    document.getElementById('approve-box').focus();
+    return;
+  }
+
+  slot.innerHTML = `
+    <form class="approve-form" id="approve-form" novalidate>
+      <h3>Approve ${esc(inv.number)}</h3>
+      <p>You're approving <strong>${money.format(inv.amount)}</strong> to ${esc(inv.vendor)} as the <strong>${esc(roleInSentence(step.role))}</strong> step.
+      ${next ? `After this, it goes to ${esc(next.name)} (${esc(roleInSentence(next.role))}) for the next approval.` : 'This is the last approval: the invoice will move to <strong>Approved</strong>, ready to schedule for payment.'}</p>
+      <label for="approve-comment">Approval comments <span class="req">(required)</span></label>
+      <textarea id="approve-comment" rows="3" maxlength="500" aria-describedby="approve-hint approve-error" required></textarea>
+      <p class="small muted" id="approve-hint">Say what you checked, for example "Goods received in full; price matches the purchase order." At least ${MIN_COMMENT} characters.</p>
+      <p class="field-error" id="approve-error" role="alert"></p>
+      <div class="approve-buttons">
+        <button type="submit" class="btn-primary">Confirm approval</button>
+        <button type="button" class="ghost" id="approve-cancel">Cancel</button>
+      </div>
+    </form>`;
+
+  const form = document.getElementById('approve-form');
+  const comment = document.getElementById('approve-comment');
+  document.getElementById('approve-cancel').addEventListener('click', hideApproveForm);
+  comment.addEventListener('input', () => {
+    if (comment.getAttribute('aria-invalid') === 'true' && comment.value.trim().length >= MIN_COMMENT) {
+      comment.removeAttribute('aria-invalid');
+      document.getElementById('approve-error').textContent = '';
+    }
+  });
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    confirmApproval(inv, comment.value.trim(), Boolean(next), next);
+  });
+  form.scrollIntoView({ block: 'nearest' });
+  comment.focus();
+}
+
+function hideApproveForm() {
+  document.getElementById('approve-slot').innerHTML = '';
+  drawer.querySelector('[data-action="Approve"]')?.focus();
+}
+
+function confirmApproval(inv, text, hasNext, next) {
+  const error = document.getElementById('approve-error');
+  const comment = document.getElementById('approve-comment');
+  if (text.length < MIN_COMMENT) {
+    error.textContent = text
+      ? `Add a little more detail: at least ${MIN_COMMENT} characters (you have ${text.length}).`
+      : 'Enter your approval comments. They are kept in the audit trail.';
+    comment.setAttribute('aria-invalid', 'true');
+    comment.focus();
+    return;
+  }
+
+  const existing = loadInvoiceEdits()[inv.id] || {};
+  const edit = {
+    ...existing,
+    status: hasNext ? 'pending' : 'approved',
+    approvals: [...(existing.approvals || []), { by: user.name, comment: text, at: new Date().toISOString() }],
+  };
+  if (!saveInvoiceEdit(inv.id, edit)) {
+    error.textContent = 'This browser blocked saving, so the approval was not recorded.';
+    return;
+  }
+
+  // Update the in-memory list, the dashboard and this panel.
+  const index = INVOICES.findIndex((i) => i.id === inv.id);
+  INVOICES[index] = applyInvoiceEdit(ORIGINAL_INVOICES[index], edit);
+  render();
+  document.getElementById('reset-demo').hidden = false;
+  openInvoice(inv.id, null, { refresh: true });
+  document.querySelectorAll('#invoice-rows tr').forEach((tr) => tr.classList.toggle('selected', tr.dataset.number === inv.id));
+  showToast(hasNext
+    ? `Approved. ${inv.number} now waits for ${next.name}.`
+    : `${inv.number} approved and moved to Approved.`);
+}
 
 document.addEventListener('keydown', (e) => {
   if (drawer.hidden) return;

@@ -4,8 +4,8 @@
 
 const APP_INFO = {
   name: 'AP Portal',
-  version: '1.2.0',
-  build: '20261027.3',
+  version: '1.3.0',
+  build: '20261027.4',
   releaseDate: '2026-10-27',
   environment: 'Demo', // 'Production' hides the environment badge
   licensee: 'Rajha',

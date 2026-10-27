@@ -4,6 +4,20 @@ All notable changes to AP Portal are listed here. Versions follow
 [Semantic Versioning](https://semver.org/). Build numbers use the
 format `YYYYMMDD.N` (date of the build, then the build count that day).
 
+## 1.3.0 (build 20261027.4) – 2026-10-27
+
+### Added
+- **Approve with comments.** In the details panel of a **Pending approval** invoice,
+  **Approve** opens a form that requires approval comments (at least 10 characters)
+  before **Confirm approval** is allowed.
+  - Each approval completes the current step of the approval chain. After the last
+    step the invoice moves to **Approved**; otherwise it waits for the next approver.
+  - The approver's name, time and comments appear in the approval chain, the
+    Approved summary and the activity log (audit trail).
+  - Separation of duties: the person who entered and submitted an invoice cannot
+    approve it, and one person cannot approve two steps of the same invoice.
+  - The dashboard counts and list update straight away.
+
 ## 1.2.0 (build 20261027.3) – 2026-10-27
 
 ### Added

@@ -3,7 +3,7 @@
 A web front end for an accounts payable application: sign in, review invoices by
 status and age, and reset a forgotten password.
 
-**Version 1.2.0** (build 20261027.3) · Developed by Claude Code · Licensed to Rajha
+**Version 1.3.0** (build 20261027.4) · Developed by Claude Code · Licensed to Rajha
 
 ## Pages
 
