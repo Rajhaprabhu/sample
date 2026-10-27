@@ -48,7 +48,10 @@
 
     <section class="panel" aria-labelledby="list-heading">
       <div class="panel-head">
-        <h2 id="list-heading" class="section-title">Invoices <span id="list-filter" class="muted"></span></h2>
+        <div>
+          <h2 id="list-heading" class="section-title">Invoices <span id="list-filter" class="muted"></span></h2>
+          <p class="muted small">Click an invoice to see its details.</p>
+        </div>
         <div class="controls">
           <input type="search" id="search" placeholder="Search vendor or invoice #" aria-label="Search invoices">
           <button type="button" id="clear-filter" class="ghost" hidden>Clear filter</button>
@@ -75,8 +78,20 @@
 
   <footer class="app-footer"></footer>
 
+  <div id="drawer-backdrop" class="drawer-backdrop" hidden></div>
+  <aside id="invoice-drawer" class="drawer" role="dialog" aria-modal="true" aria-labelledby="drawer-title" hidden>
+    <div class="drawer-bar">
+      <button type="button" id="drawer-close" class="drawer-close" aria-label="Close invoice details">✕</button>
+    </div>
+    <div id="drawer-body" class="drawer-body"></div>
+  </aside>
+
+  <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+
   <script src="data.js"></script>
+  <script src="invoice-details-data.js"></script>
   <script src="dashboard.js"></script>
+  <script src="invoice-details.js"></script>
   <script src="../shared/app-info.js"></script>
 </body>
 </html>

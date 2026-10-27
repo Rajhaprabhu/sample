@@ -161,8 +161,10 @@ function renderTable() {
     const days = daysPastDue(inv);
     const overdue = days > 0 && !CLOSED_STATUSES.includes(inv.status);
     const tr = document.createElement('tr');
+    tr.dataset.number = inv.number;
+    tr.className = 'clickable';
     tr.innerHTML = `
-      <td class="mono">${inv.number}</td>
+      <td class="mono"><button type="button" class="row-link" aria-label="View invoice ${inv.number} from ${inv.vendor}">${inv.number}</button></td>
       <td>${inv.vendor}</td>
       <td>${dateFmt.format(inv.invoiceDate)}</td>
       <td>${dateFmt.format(inv.dueDate)}${overdue ? ` <span class="overdue">${days}d overdue</span>` : ''}</td>

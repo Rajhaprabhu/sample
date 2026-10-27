@@ -4,6 +4,26 @@ All notable changes to AP Portal are listed here. Versions follow
 [Semantic Versioning](https://semver.org/). Build numbers use the
 format `YYYYMMDD.N` (date of the build, then the build count that day).
 
+## 1.1.0 (build 20261027.2) – 2026-10-27
+
+### Added
+- Invoice details panel: click any invoice on the dashboard to open it.
+  - Progress bar from Received to Paid, showing where an invoice stopped if it is on hold or rejected.
+  - A status summary at the top that changes with the status:
+    - **Received:** intake checks (duplicates, vendor, purchase order, coding).
+    - **Pending approval:** who it is waiting for, for how long, and whether it is past due.
+    - **Approved:** next payment run and any overdue warning.
+    - **Scheduled:** payment date, method, amount and accounts.
+    - **On hold:** the exception (price variance, missing goods receipt, possible duplicate), owner and next step.
+    - **Paid:** payment reference, days to pay, remittance advice and any discount captured.
+    - **Rejected:** reason, who rejected it, and whether the vendor was told.
+  - Early payment discount alerts (e.g. 2/10 Net 30) while the discount can still be taken.
+  - Invoice details, amounts, line items with GL coding, 2-way or 3-way match result,
+    approval chain, vendor details with masked bank and tax numbers, the original
+    document, and the activity log (audit trail).
+  - Next-step buttons for each status (demo only: they show a message).
+  - Opens from a link such as `dashboard/index.html#INV-10421`; closes with Esc.
+
 ## 1.0.0 (build 20261027.1) – 2026-10-27
 
 First release.

@@ -3,7 +3,7 @@
 A web front end for an accounts payable application: sign in, review invoices by
 status and age, and reset a forgotten password.
 
-**Version 1.0.0** (build 20261027.1) · Developed by Claude Code · Licensed to Rajha
+**Version 1.1.0** (build 20261027.2) · Developed by Claude Code · Licensed to Rajha
 
 ## Pages
 
@@ -12,7 +12,7 @@ status and age, and reset a forgotten password.
 | Sign in | `login/index.html` |
 | Forgot password | `login/forgot-password.html` |
 | Choose a new password | `login/reset-password.html` |
-| Invoice dashboard | `dashboard/index.html` |
+| Invoice dashboard (click an invoice for its details) | `dashboard/index.html` |
 | Help & support, privacy policy, terms of use, accessibility, security reporting | `info/*.html` |
 
 Every page shares one footer (`shared/app-info.js` and `shared/footer.css`) with
