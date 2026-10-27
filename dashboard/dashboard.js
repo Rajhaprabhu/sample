@@ -2,12 +2,18 @@
 
 const SESSION_KEY = 'apPortalUser';
 
+// Returns the signed-in user as { name, email }, or null if not signed in.
 function getSessionUser() {
   try {
-    return sessionStorage.getItem(SESSION_KEY) || localStorage.getItem(SESSION_KEY);
+    const stored = JSON.parse(sessionStorage.getItem(SESSION_KEY) || localStorage.getItem(SESSION_KEY));
+    return stored && stored.name ? stored : null;
   } catch {
     return null;
   }
+}
+
+function initials(name) {
+  return name.split(/\s+/).filter(Boolean).slice(0, 2).map((w) => w[0].toUpperCase()).join('');
 }
 
 function clearSession() {
@@ -184,7 +190,10 @@ function render() {
 }
 
 if (user) {
-  document.getElementById('user-email').textContent = user;
+  const userBox = document.getElementById('user');
+  document.getElementById('user-name').textContent = user.name;
+  document.getElementById('user-initials').textContent = initials(user.name);
+  userBox.title = `Signed in as ${user.name} (${user.email})`;
   document.getElementById('as-of').textContent = `As of ${dateFmt.format(today())}`;
 
   document.getElementById('search').addEventListener('input', (e) => {

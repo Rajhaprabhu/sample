@@ -77,6 +77,13 @@ body {
 }
 .brand-name { font-weight: 600; }
 .user { display: flex; align-items: center; gap: 12px; font-size: 0.9rem; }
+.user-chip { display: flex; align-items: center; gap: 8px; font-weight: 600; }
+.avatar {
+  display: grid; place-items: center;
+  width: 30px; height: 30px; border-radius: 50%;
+  background: rgba(255, 255, 255, 0.15);
+  color: var(--brand-text); font-size: 0.75rem; font-weight: 700;
+}
 .topbar .ghost { color: var(--brand-text); border-color: rgba(255, 255, 255, 0.3); }
 
 .ghost {
@@ -91,7 +98,7 @@ body {
 .ghost:hover { border-color: var(--primary); }
 
 /* Page */
-.page { max-width: 1200px; margin: 0 auto; padding: 24px; }
+.page { max-width: 1200px; margin: 0 auto; padding: 24px 24px 40px; }
 .page-head { display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; flex-wrap: wrap; }
 .page-head h1 { margin: 0 0 4px; font-size: 1.6rem; }
 .page-head p { margin: 0; }
@@ -207,5 +214,5 @@ th { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.03em; color
   .aging-grid { grid-template-columns: repeat(2, 1fr); }
   .controls { width: 100%; }
   .controls input { min-width: 0; flex: 1; }
-  .user-email { display: none; }
+  .user-name { display: none; }
 }

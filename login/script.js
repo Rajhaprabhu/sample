@@ -57,19 +57,29 @@ function setLoading(isLoading) {
   submitBtn.querySelector('.btn-label').textContent = isLoading ? 'Signing in…' : 'Sign in';
 }
 
+// Demo only: guesses a display name from the email, e.g. "jane.doe@company.com"
+// becomes "Jane Doe". A real backend returns the name from the user's profile.
+function nameFromEmail(address) {
+  const words = address.split('@')[0].split(/[._-]+/).map((w) => w.replace(/\d+/g, '')).filter(Boolean);
+  if (!words.length) return address;
+  return words.map((w) => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ');
+}
+
 // Placeholder: simulates a network request. Swap for a real API call, e.g.
 //   fetch('/api/auth/login', { method: 'POST', credentials: 'include', ... })
+// which should respond with the signed-in user's profile ({ name, email }).
 function authenticate({ email, password }) {
   return new Promise((resolve) => {
-    setTimeout(() => resolve({ ok: email.length > 0 && password.length >= 8 }), 800);
+    const ok = email.length > 0 && password.length >= 8;
+    setTimeout(() => resolve({ ok, user: ok ? { name: nameFromEmail(email), email } : null }), 800);
   });
 }
 
 // Demo-only session: remembers who signed in so the dashboard can greet them.
 // A real backend should issue an HttpOnly session cookie instead.
-function startSession(userEmail, remember) {
+function startSession(user, remember) {
   try {
-    (remember ? localStorage : sessionStorage).setItem(SESSION_KEY, userEmail);
+    (remember ? localStorage : sessionStorage).setItem(SESSION_KEY, JSON.stringify(user));
   } catch {
     // Storage unavailable (e.g. private mode); dashboard will ask to sign in again.
   }
@@ -118,7 +128,7 @@ form.addEventListener('submit', async (e) => {
     const result = await authenticate({ email: email.value.trim(), password: password.value });
     if (result.ok) {
       showAlert('Signed in successfully. Redirecting to the dashboard…', 'success');
-      startSession(email.value.trim(), document.getElementById('remember').checked);
+      startSession(result.user, document.getElementById('remember').checked);
       window.location.href = '../dashboard/index.html';
     } else {
       showAlert('Incorrect email or password.');

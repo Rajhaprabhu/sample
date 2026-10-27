@@ -1,0 +1,73 @@
+/* Styles for the support and legal pages in info/. */
+:root {
+  --bg: #f4f6fa;
+  --surface: #ffffff;
+  --text: #1c2333;
+  --muted: #5d6679;
+  --border: #d5dbe5;
+  --primary: #1f5eff;
+  --brand-bg: #0f1e3d;
+  --brand-text: #e6ecf8;
+  --notice-bg: #fff6e0;
+  --notice-border: #c98a00;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0d1117;
+    --surface: #161b25;
+    --text: #e6e9ef;
+    --muted: #9aa3b5;
+    --border: #2c3445;
+    --primary: #4d7dff;
+    --brand-bg: #0a1430;
+    --notice-bg: #3a2a0a;
+    --notice-border: #8a5a00;
+  }
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+}
+
+.topbar {
+  display: flex; justify-content: space-between; align-items: center; gap: 12px;
+  padding: 12px max(16px, env(safe-area-inset-right, 0px)) 12px max(16px, env(safe-area-inset-left, 0px));
+  background: var(--brand-bg); color: var(--brand-text);
+}
+.brand { display: flex; align-items: center; gap: 10px; font-weight: 600; color: inherit; text-decoration: none; }
+.logo {
+  display: grid; place-items: center; width: 34px; height: 34px; border-radius: 8px;
+  background: var(--primary); color: #fff; font-weight: 700; font-size: 0.85rem;
+}
+.topbar a.back { color: var(--brand-text); font-size: 0.9rem; }
+
+.doc {
+  flex: 1;
+  width: 100%;
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 32px max(16px, env(safe-area-inset-right, 0px)) 48px max(16px, env(safe-area-inset-left, 0px));
+}
+.doc h1 { margin: 0 0 4px; font-size: 1.8rem; line-height: 1.25; }
+.doc h2 { margin: 32px 0 8px; font-size: 1.15rem; }
+.doc p, .doc li { max-width: 68ch; }
+.doc a { color: var(--primary); }
+.updated { margin: 0 0 24px; color: var(--muted); font-size: 0.9rem; }
+
+.template-notice {
+  margin: 0 0 24px;
+  padding: 12px 14px;
+  border: 1px dashed var(--notice-border);
+  border-radius: 8px;
+  background: var(--notice-bg);
+  font-size: 0.9rem;
+}
