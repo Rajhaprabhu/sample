@@ -11,6 +11,7 @@ const CLOSED_STATUSES = ['paid', 'rejected'];
 
 const money = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' });
 const dateFmt = new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+const dateTimeShort = new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit' });
 
 const state = { status: null, aging: null, search: '' };
 
@@ -124,8 +125,19 @@ function renderTable() {
     .filter((inv) => !query || inv.vendor.toLowerCase().includes(query) || inv.number.toLowerCase().includes(query))
     .sort((a, b) => a.dueDate - b.dueDate);
 
+  // The Approved queue gets an extra column: when, and by whom, the final approval was given.
+  const showApproved = state.status === 'approved';
+  document.getElementById('col-approved').hidden = !showApproved;
+
   tbody.innerHTML = '';
   rows.forEach((inv) => {
+    let approvedCell = '';
+    if (showApproved) {
+      const last = getInvoiceDetails(inv).approvals.filter((a) => a.state === 'approved').pop();
+      approvedCell = last
+        ? `<td><time datetime="${last.on.toISOString()}">${dateTimeShort.format(last.on)}</time><span class="cell-sub">by ${last.name}</span></td>`
+        : '<td class="muted">—</td>';
+    }
     const days = daysPastDue(inv);
     const overdue = days > 0 && !CLOSED_STATUSES.includes(inv.status);
     const tr = document.createElement('tr');
@@ -138,6 +150,7 @@ function renderTable() {
       <td>${inv.vendor}</td>
       <td>${dateFmt.format(inv.invoiceDate)}</td>
       <td>${dateFmt.format(inv.dueDate)}${overdue ? ` <span class="overdue">${days}d overdue</span>` : ''}</td>
+      ${approvedCell}
       <td class="num">${money.format(inv.amount)}</td>
       <td><span class="pill status-${inv.status}">${statusLabel(inv.status)}</span></td>
     `;

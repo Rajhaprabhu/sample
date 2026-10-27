@@ -4,6 +4,12 @@ All notable changes to AP Portal are listed here. Versions follow
 [Semantic Versioning](https://semver.org/). Build numbers use the
 format `YYYYMMDD.N` (date of the build, then the build count that day).
 
+## 1.4.0 (build 20261027.5) – 2026-10-27
+
+### Added
+- **Approved on** column in the invoice list when the **Approved** bucket is selected,
+  showing the date and time of the final approval and who gave it.
+
 ## 1.3.0 (build 20261027.4) – 2026-10-27
 
 ### Added

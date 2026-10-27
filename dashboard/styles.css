@@ -421,3 +421,6 @@ a.btn-primary { text-decoration: none; display: inline-flex; align-items: center
   border-left: 3px solid var(--border);
   font-size: 0.88rem; font-style: italic; color: var(--text);
 }
+
+/* Second line inside a table cell, e.g. "by Jane Doe" under the approval date */
+.cell-sub { display: block; font-size: 0.8rem; color: var(--muted); }
