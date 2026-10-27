@@ -90,10 +90,19 @@ togglePassword.addEventListener('click', () => {
   });
 });
 
+// Carry the typed email over to the "forgot password" page.
 document.getElementById('forgot-link').addEventListener('click', (e) => {
-  e.preventDefault();
-  showAlert('Password reset is not set up yet. Contact your finance system administrator.');
+  const value = email.value.trim();
+  if (value) e.currentTarget.href = `forgot-password.html?${new URLSearchParams({ email: value })}`;
 });
+
+// Arriving back here after a successful password reset.
+const query = new URLSearchParams(window.location.search);
+if (query.get('reset') === '1') {
+  if (query.get('email')) email.value = query.get('email');
+  showAlert('Your password has been updated. Sign in with your new password.', 'success');
+  (email.value ? password : email).focus();
+}
 
 form.addEventListener('submit', async (e) => {
   e.preventDefault();
