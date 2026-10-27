@@ -11,6 +11,8 @@
   --brand-bg: #0f1e3d;
   --brand-text: #e6ecf8;
   --radius: 10px;
+  --success: #1b7a3a;
+  --notice-bg: #f1f4fb;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -25,6 +27,8 @@
     --danger: #ff6b6b;
     --danger-bg: #3a1c1f;
     --brand-bg: #0a1430;
+    --success: #3dbb72;
+    --notice-bg: #1b2232;
   }
 }
 
@@ -153,3 +157,43 @@ input[aria-invalid="true"] { border-color: var(--danger); }
   .brand-panel { display: none; }
   .card { padding: 24px; }
 }
+
+/* Password reset flow */
+.secondary {
+  width: 100%;
+  padding: 11px;
+  font-size: 0.95rem; font-weight: 600;
+  color: var(--primary);
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  cursor: pointer;
+}
+.secondary:hover:not(:disabled) { border-color: var(--primary); }
+.secondary:disabled { color: var(--muted); cursor: default; }
+
+.button-link { text-decoration: none; }
+
+.notice {
+  margin-bottom: 20px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  background: var(--notice-bg);
+  border: 1px dashed var(--border);
+}
+
+.muted-text { margin: 0 0 10px; color: var(--muted); font-size: 0.9rem; }
+
+.requirements {
+  list-style: none;
+  margin: 10px 0 0;
+  padding: 0;
+  display: grid;
+  gap: 4px;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+.requirements li::before { content: "○"; display: inline-block; width: 1.4em; }
+.requirements li.met { color: var(--success); }
+.requirements li.met::before { content: "✓"; }
