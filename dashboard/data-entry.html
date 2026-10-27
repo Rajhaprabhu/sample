@@ -1,0 +1,209 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Data entry · AP Portal</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="data-entry.css">
+  <link rel="stylesheet" href="../shared/footer.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="index.html">
+      <span class="logo">AP</span>
+      <span class="brand-name">AP Portal</span>
+    </a>
+    <div class="user">
+      <span id="user" class="user-chip">
+        <span id="user-initials" class="avatar" aria-hidden="true"></span>
+        <span id="user-name" class="user-name"></span>
+      </span>
+      <button type="button" id="sign-out" class="ghost">Sign out</button>
+    </div>
+  </header>
+
+  <main class="page" id="top" tabindex="-1">
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+      <ol>
+        <li><a href="index.html" data-leave>Invoice dashboard</a></li>
+        <li><a href="index.html" data-leave data-filter="received">Received</a></li>
+        <li aria-current="page" id="crumb-current">Data entry</li>
+      </ol>
+    </nav>
+
+    <div class="page-head">
+      <div>
+        <h1>Data entry <span id="title-number" class="mono"></span></h1>
+        <p class="muted" id="capture-note"></p>
+      </div>
+      <span id="status-pill" class="pill"></span>
+    </div>
+
+    <div id="not-found" class="status-panel tone-danger" hidden>
+      <h3>Invoice not found</h3>
+      <p>There is no invoice with that number. <a href="index.html">Go back to the dashboard</a>.</p>
+    </div>
+
+    <div id="locked" class="status-panel tone-info" hidden></div>
+
+    <div id="error-summary" class="error-summary" role="alert" tabindex="-1" hidden>
+      <h2>Fix these before submitting</h2>
+      <ul id="error-list"></ul>
+    </div>
+
+    <div class="entry-layout" id="entry" hidden>
+      <form id="entry-form" class="entry-form" novalidate>
+        <fieldset id="form-fields" class="entry-fields">
+
+          <section class="panel" aria-labelledby="sec-vendor">
+            <h2 id="sec-vendor" class="section-title">Vendor</h2>
+            <div class="form-grid">
+              <div class="field span-2">
+                <label for="vendor">Vendor <span class="req" aria-hidden="true">*</span></label>
+                <select id="vendor" name="vendor" required aria-describedby="vendor-hint vendor-error"></select>
+                <p class="hint" id="vendor-hint">Only vendors in the vendor master can be selected.</p>
+                <p class="field-error" id="vendor-error"></p>
+              </div>
+              <div class="readonly"><span class="ro-label">Vendor ID</span><span id="vendor-id" class="ro-value"></span></div>
+              <div class="readonly"><span class="ro-label">Pays by</span><span id="vendor-method" class="ro-value"></span></div>
+              <div class="readonly span-2"><span class="ro-label">Bank account</span><span id="vendor-bank" class="ro-value"></span>
+                <span class="hint">Bank details can only be changed in the vendor master, after a call-back check with the vendor.</span></div>
+            </div>
+          </section>
+
+          <section class="panel" aria-labelledby="sec-header">
+            <h2 id="sec-header" class="section-title">Invoice information</h2>
+            <div class="form-grid">
+              <div class="field">
+                <label for="number">Supplier invoice number <span class="req" aria-hidden="true">*</span></label>
+                <input id="number" name="number" type="text" required autocomplete="off" spellcheck="false" aria-describedby="number-error">
+                <p class="field-error" id="number-error"></p>
+              </div>
+              <div class="field">
+                <label for="invoiceDate">Invoice date <span class="req" aria-hidden="true">*</span></label>
+                <input id="invoiceDate" name="invoiceDate" type="date" required aria-describedby="invoiceDate-error">
+                <p class="field-error" id="invoiceDate-error"></p>
+              </div>
+              <div class="field">
+                <label for="terms">Payment terms <span class="req" aria-hidden="true">*</span></label>
+                <select id="terms" name="terms" required aria-describedby="terms-error"></select>
+                <p class="field-error" id="terms-error"></p>
+              </div>
+              <div class="readonly">
+                <span class="ro-label">Due date</span>
+                <output id="dueDate" class="ro-value" for="invoiceDate terms"></output>
+                <span class="hint">Worked out from the invoice date and terms.</span>
+              </div>
+              <div class="field">
+                <label for="poNumber">Purchase order <span class="req" id="po-req" aria-hidden="true">*</span></label>
+                <input id="poNumber" name="poNumber" type="text" autocomplete="off" spellcheck="false" placeholder="PO-0000" aria-describedby="po-hint poNumber-error">
+                <p class="hint" id="po-hint"></p>
+                <p class="field-error" id="poNumber-error"></p>
+              </div>
+              <div class="field">
+                <label for="currency">Currency <span class="req" aria-hidden="true">*</span></label>
+                <select id="currency" name="currency" required aria-describedby="currency-error"></select>
+                <p class="field-error" id="currency-error"></p>
+              </div>
+              <div class="readonly">
+                <span class="ro-label">Received</span>
+                <span id="receivedOn" class="ro-value"></span>
+              </div>
+            </div>
+          </section>
+
+          <section class="panel" aria-labelledby="sec-lines">
+            <div class="panel-head">
+              <h2 id="sec-lines" class="section-title">Line items</h2>
+              <button type="button" id="add-line" class="ghost">+ Add line</button>
+            </div>
+            <div class="table-wrap">
+              <table class="entry-lines">
+                <thead>
+                  <tr>
+                    <th scope="col">Description <span class="req" aria-hidden="true">*</span></th>
+                    <th scope="col">GL account <span class="req" aria-hidden="true">*</span></th>
+                    <th scope="col">Cost center <span class="req" aria-hidden="true">*</span></th>
+                    <th scope="col" class="num">Qty <span class="req" aria-hidden="true">*</span></th>
+                    <th scope="col" class="num">Unit price <span class="req" aria-hidden="true">*</span></th>
+                    <th scope="col" class="num">Amount</th>
+                    <th scope="col"><span class="visually-hidden">Remove</span></th>
+                  </tr>
+                </thead>
+                <tbody id="line-rows"></tbody>
+              </table>
+            </div>
+            <p class="field-error" id="lines-error"></p>
+          </section>
+
+          <section class="panel" aria-labelledby="sec-totals">
+            <h2 id="sec-totals" class="section-title">Totals</h2>
+            <div class="totals-grid">
+              <div class="readonly"><span class="ro-label">Subtotal of lines</span><output id="subtotal" class="ro-value num-value"></output></div>
+              <div class="field">
+                <label for="tax">Tax <span class="req" aria-hidden="true">*</span></label>
+                <input id="tax" name="tax" type="number" inputmode="decimal" min="0" step="0.01" required aria-describedby="tax-error">
+                <p class="field-error" id="tax-error"></p>
+              </div>
+              <div class="field">
+                <label for="shipping">Shipping</label>
+                <input id="shipping" name="shipping" type="number" inputmode="decimal" min="0" step="0.01" aria-describedby="shipping-error">
+                <p class="field-error" id="shipping-error"></p>
+              </div>
+              <div class="readonly"><span class="ro-label">Calculated total</span><output id="calcTotal" class="ro-value num-value"></output></div>
+              <div class="field">
+                <label for="total">Total on the invoice <span class="req" aria-hidden="true">*</span></label>
+                <input id="total" name="total" type="number" inputmode="decimal" min="0" step="0.01" required aria-describedby="total-hint total-error">
+                <p class="hint" id="total-hint">Copy the total exactly as printed on the invoice.</p>
+                <p class="field-error" id="total-error"></p>
+              </div>
+              <div id="balance-check" class="balance-check" role="status" aria-live="polite"></div>
+            </div>
+          </section>
+
+          <section class="panel" aria-labelledby="sec-notes">
+            <h2 id="sec-notes" class="section-title">Notes for the approver</h2>
+            <div class="field">
+              <label for="notes" class="visually-hidden">Notes for the approver</label>
+              <textarea id="notes" name="notes" rows="3" maxlength="500" aria-describedby="notes-count"></textarea>
+              <p class="hint" id="notes-count"></p>
+            </div>
+          </section>
+        </fieldset>
+
+        <div class="action-bar">
+          <p id="save-status" class="save-status" role="status" aria-live="polite"></p>
+          <div id="leave-confirm" class="leave-confirm" hidden>
+            <span>You have unsaved changes.</span>
+            <button type="button" id="discard" class="ghost">Leave without saving</button>
+            <button type="button" id="keep-editing" class="ghost">Keep editing</button>
+          </div>
+          <div class="action-buttons" id="action-buttons">
+            <a href="index.html" class="ghost button-link" data-leave>Cancel</a>
+            <button type="button" id="save-draft" class="ghost">Save draft</button>
+            <button type="submit" id="submit" class="btn-primary">Submit for approval</button>
+          </div>
+        </div>
+      </form>
+
+      <aside class="document" aria-labelledby="doc-title">
+        <details id="doc-toggle" open>
+          <summary><h2 id="doc-title" class="section-title">Original invoice</h2></summary>
+          <p class="hint" id="doc-caption"></p>
+          <div id="document" class="paper"></div>
+        </details>
+      </aside>
+    </div>
+  </main>
+
+  <footer class="app-footer"></footer>
+
+  <script src="invoice-store.js"></script>
+  <script src="data.js"></script>
+  <script src="invoice-details-data.js"></script>
+  <script src="session.js"></script>
+  <script src="data-entry.js"></script>
+  <script src="../shared/app-info.js"></script>
+</body>
+</html>

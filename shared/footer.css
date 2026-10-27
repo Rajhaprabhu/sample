@@ -1,3 +1,7 @@
+/* Anything with the `hidden` attribute stays hidden, even if a class gives it a
+   display value (e.g. the invoice drawer's `display: flex`). Shared by every page. */
+[hidden] { display: none !important; }
+
 /* Application footer, shared by every page. Content comes from shared/app-info.js.
    Uses the colour tokens (--surface, --border, --muted, --text, --primary) that
    each page's own stylesheet defines for light and dark mode. */
