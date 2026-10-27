@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Dashboard · AP Portal</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <span class="logo">AP</span>
+      <span class="brand-name">AP Portal</span>
+    </div>
+    <div class="user">
+      <span id="user-email" class="user-email"></span>
+      <button type="button" id="sign-out" class="ghost">Sign out</button>
+    </div>
+  </header>
+
+  <main class="page">
+    <div class="page-head">
+      <div>
+        <h1>Invoice dashboard</h1>
+        <p class="muted">Status of all open and recent vendor invoices. <span class="badge">Demo data</span></p>
+      </div>
+      <p class="muted" id="as-of"></p>
+    </div>
+
+    <section aria-labelledby="status-heading">
+      <h2 id="status-heading" class="section-title">Invoices by status</h2>
+      <p class="muted small">Click a bucket to filter the invoice list.</p>
+      <div id="status-buckets" class="bucket-grid"></div>
+    </section>
+
+    <section class="panel" aria-labelledby="aging-heading">
+      <div class="panel-head">
+        <h2 id="aging-heading" class="section-title">Unpaid invoices by age</h2>
+        <p class="muted small">Days past due date · excludes paid and rejected</p>
+      </div>
+      <div id="aging-bar" class="aging-bar" role="img"></div>
+      <div id="aging-buckets" class="aging-grid"></div>
+    </section>
+
+    <section class="panel" aria-labelledby="list-heading">
+      <div class="panel-head">
+        <h2 id="list-heading" class="section-title">Invoices <span id="list-filter" class="muted"></span></h2>
+        <div class="controls">
+          <input type="search" id="search" placeholder="Search vendor or invoice #" aria-label="Search invoices">
+          <button type="button" id="clear-filter" class="ghost" hidden>Clear filter</button>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th scope="col">Invoice #</th>
+              <th scope="col">Vendor</th>
+              <th scope="col">Invoice date</th>
+              <th scope="col">Due date</th>
+              <th scope="col" class="num">Amount</th>
+              <th scope="col">Status</th>
+            </tr>
+          </thead>
+          <tbody id="invoice-rows"></tbody>
+        </table>
+        <p id="empty" class="empty" hidden>No invoices match.</p>
+      </div>
+    </section>
+  </main>
+
+  <script src="data.js"></script>
+  <script src="dashboard.js"></script>
+</body>
+</html>

@@ -10,6 +10,7 @@ const submitBtn = document.getElementById('submit-btn');
 const formError = document.getElementById('form-error');
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const SESSION_KEY = 'apPortalUser';
 
 function setFieldError(input, message) {
   const errorEl = document.getElementById(`${input.id}-error`);
@@ -64,6 +65,16 @@ function authenticate({ email, password }) {
   });
 }
 
+// Demo-only session: remembers who signed in so the dashboard can greet them.
+// A real backend should issue an HttpOnly session cookie instead.
+function startSession(userEmail, remember) {
+  try {
+    (remember ? localStorage : sessionStorage).setItem(SESSION_KEY, userEmail);
+  } catch {
+    // Storage unavailable (e.g. private mode); dashboard will ask to sign in again.
+  }
+}
+
 togglePassword.addEventListener('click', () => {
   const show = password.type === 'password';
   password.type = show ? 'text' : 'password';
@@ -97,8 +108,9 @@ form.addEventListener('submit', async (e) => {
   try {
     const result = await authenticate({ email: email.value.trim(), password: password.value });
     if (result.ok) {
-      showAlert('Signed in successfully (demo). Redirecting to the dashboard…', 'success');
-      // window.location.href = '/dashboard';
+      showAlert('Signed in successfully. Redirecting to the dashboard…', 'success');
+      startSession(email.value.trim(), document.getElementById('remember').checked);
+      window.location.href = '../dashboard/index.html';
     } else {
       showAlert('Incorrect email or password.');
     }
