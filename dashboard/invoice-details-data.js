@@ -135,6 +135,12 @@ function dayDiff(later, earlier) {
   return Math.round((later - earlier) / 86400000);
 }
 
+function startOfDay(date) {
+  const d = new Date(date);
+  d.setHours(0, 0, 0, 0);
+  return d;
+}
+
 function startOfToday() {
   const d = new Date();
   d.setHours(0, 0, 0, 0);
@@ -205,26 +211,34 @@ function buildLines(vendor, subtotal, seed) {
 
 function getInvoiceDetails(inv) {
   const vendor = VENDORS[inv.vendor];
-  const seed = seedOf(inv.number);
-  const override = INVOICE_OVERRIDES[inv.number] || {};
+  const seed = seedOf(inv.id);
+  const override = INVOICE_OVERRIDES[inv.id] || {};
+  const edit = inv.edit || null; // changes saved in data entry, if any
   const today = startOfToday();
   const person = (key) => (key ? PEOPLE[key] : null);
 
-  // Amounts
-  const shipping = vendor.shipping;
-  const subtotal = Math.round(((inv.amount - shipping) / (1 + TAX_RATE)) * 100) / 100;
-  const tax = Math.round((inv.amount - shipping - subtotal) * 100) / 100;
-  const lines = buildLines(vendor, subtotal, seed);
+  // Amounts: as entered in data entry, otherwise split from the invoice total.
+  let shipping = vendor.shipping;
+  let subtotal = Math.round(((inv.amount - shipping) / (1 + TAX_RATE)) * 100) / 100;
+  let tax = Math.round((inv.amount - shipping - subtotal) * 100) / 100;
+  let lines = buildLines(vendor, subtotal, seed);
+  if (edit) {
+    ({ shipping, tax } = edit);
+    lines = edit.lines;
+    subtotal = Math.round(lines.reduce((sum, l) => sum + l.amount, 0) * 100) / 100;
+  }
+  const terms = edit?.terms || vendor.terms;
 
   // Key dates
-  const receivedOn = addDays(inv.invoiceDate, 1);
-  const discountTerms = /^(\d+)\/(\d+)/.exec(vendor.terms);
+  const receivedOn = edit?.receivedOn ? new Date(`${edit.receivedOn}T00:00`) : addDays(inv.invoiceDate, 1);
+  const discountTerms = /^(\d+)\/(\d+)/.exec(terms);
   const discount = discountTerms
     ? { rate: Number(discountTerms[1]) / 100, deadline: addDays(inv.invoiceDate, Number(discountTerms[2])) }
     : null;
   if (discount) discount.amount = Math.round(inv.amount * discount.rate * 100) / 100;
 
-  const poNumber = vendor.matching === 'Non-PO' || vendor.matching === 'None' ? null : `PO-${4500 + (seed % 400)}`;
+  let poNumber = vendor.matching === 'Non-PO' || vendor.matching === 'None' ? null : `PO-${4500 + (seed % 400)}`;
+  if (edit) poNumber = edit.poNumber || null;
   const channel = ['Email to AP inbox', 'Supplier portal', 'EDI'][seed % 3];
 
   // Approval chain: who signs off, and how far it has got.
@@ -238,8 +252,14 @@ function getInvoiceDetails(inv) {
     on_hold: 0, // holds stop the invoice before approval
     rejected: 0,
   }[inv.status];
-  const submittedOn = addDays(receivedOn, 1);
+  const submittedOn = edit?.submittedAt ? new Date(edit.submittedAt) : addDays(receivedOn, 1);
+  const justSubmitted = Boolean(edit?.submittedAt) && inv.status === 'pending';
   const approvals = chainKeys.map((key, i) => {
+    if (justSubmitted) {
+      return i === 0
+        ? { ...PEOPLE[key], state: 'waiting', since: submittedOn, days: Math.max(0, dayDiff(today, startOfDay(submittedOn))) }
+        : { ...PEOPLE[key], state: 'not-started' };
+    }
     const decidedOn = addDays(submittedOn, 1 + i * 2);
     if (i < approvedCount) return { ...PEOPLE[key], state: 'approved', on: at(decidedOn, 10 + i, 15) };
     if (i === approvedCount && inv.status === 'pending') {
@@ -287,7 +307,12 @@ function getInvoiceDetails(inv) {
     { on: at(receivedOn, 9, 12), who: 'System', what: `Invoice received (${channel})` },
     { on: at(receivedOn, 9, 13), who: 'System', what: 'Details captured and checked for duplicates' },
   ];
-  if (inv.status !== 'received' && inv.status !== 'rejected') {
+  if (edit?.savedAt) {
+    activity.push({ on: new Date(edit.savedAt), who: edit.savedBy, what: 'Details checked and updated in data entry' });
+  }
+  if (justSubmitted) {
+    activity.push({ on: submittedOn, who: edit.savedBy, what: 'Submitted for approval' });
+  } else if (inv.status !== 'received' && inv.status !== 'rejected') {
     activity.push({ on: at(submittedOn, 11, 40), who: PEOPLE.apClerk.name, what: 'Coded and submitted for approval' });
   }
   approvals.filter((a) => a.state === 'approved').forEach((a) => {
@@ -314,9 +339,10 @@ function getInvoiceDetails(inv) {
     channel,
     receivedOn,
     poNumber,
-    terms: vendor.terms,
+    terms,
     discount,
-    currency: 'USD',
+    currency: edit?.currency || 'USD',
+    notes: edit?.notes || '',
     lines,
     amounts: { subtotal, tax, taxRate: TAX_RATE, shipping, total: inv.amount, amountPaid, balanceDue },
     approvals,
@@ -331,7 +357,7 @@ function getInvoiceDetails(inv) {
       }
       : null,
     rejection: override.rejection ? { ...override.rejection, by: person(override.rejection.by), on: addDays(receivedOn, 2) } : null,
-    attachment: { name: `${inv.number}.pdf`, size: `${180 + (seed % 300)} KB` },
+    attachment: { name: `${inv.id}.pdf`, size: `${180 + (seed % 300)} KB` },
     activity,
   };
 }

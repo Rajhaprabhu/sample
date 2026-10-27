@@ -28,7 +28,10 @@
         <h1>Invoice dashboard</h1>
         <p class="muted">Status of all open and recent vendor invoices. <span class="badge">Demo data</span></p>
       </div>
-      <p class="muted" id="as-of"></p>
+      <div class="head-meta">
+        <p class="muted" id="as-of"></p>
+        <button type="button" id="reset-demo" class="ghost small-btn" hidden>Reset demo changes</button>
+      </div>
     </div>
 
     <section aria-labelledby="status-heading">
@@ -50,7 +53,7 @@
       <div class="panel-head">
         <div>
           <h2 id="list-heading" class="section-title">Invoices <span id="list-filter" class="muted"></span></h2>
-          <p class="muted small">Click an invoice to see its details.</p>
+          <p class="muted small">Click an invoice to see its details. For <strong>Received</strong> invoices, click the invoice number to open data entry.</p>
         </div>
         <div class="controls">
           <input type="search" id="search" placeholder="Search vendor or invoice #" aria-label="Search invoices">
@@ -88,8 +91,10 @@
 
   <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
 
+  <script src="invoice-store.js"></script>
   <script src="data.js"></script>
   <script src="invoice-details-data.js"></script>
+  <script src="session.js"></script>
   <script src="dashboard.js"></script>
   <script src="invoice-details.js"></script>
   <script src="../shared/app-info.js"></script>

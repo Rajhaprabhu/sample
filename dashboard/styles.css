@@ -195,7 +195,7 @@ body {
   color: var(--text); background: var(--surface);
   border: 1px solid var(--border); border-radius: 8px;
 }
-.table-wrap { overflow-x: auto; }
+.table-wrap { overflow-x: auto; position: relative; } /* relative: keeps hidden labels inside the scroll box */
 table { width: 100%; border-collapse: collapse; font-size: 0.92rem; }
 th, td { padding: 10px 12px; text-align: left; border-bottom: 1px solid var(--border); white-space: nowrap; }
 th { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.03em; color: var(--muted); }
@@ -386,3 +386,9 @@ table.lines td.num, table.lines th.num { white-space: nowrap; }
   .match li { grid-template-columns: 1fr auto; }
   .m-ref { display: none; }
 }
+
+/* Dashboard header extras */
+.head-meta { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; }
+.head-meta p { margin: 0; }
+.small-btn { padding: 4px 10px; font-size: 0.8rem; }
+a.btn-primary { text-decoration: none; display: inline-flex; align-items: center; }

@@ -4,6 +4,33 @@ All notable changes to AP Portal are listed here. Versions follow
 [Semantic Versioning](https://semver.org/). Build numbers use the
 format `YYYYMMDD.N` (date of the build, then the build count that day).
 
+## 1.2.0 (build 20261027.3) – 2026-10-27
+
+### Added
+- **Data entry page** for AP processors (`dashboard/data-entry.html`). On the dashboard,
+  clicking the invoice number of a **Received** invoice opens it; the details panel also has
+  an **Open data entry** button.
+  - Editable fields: vendor (from the vendor master only), supplier invoice number,
+    invoice date, payment terms, purchase order, currency, line items (description,
+    GL account, cost center, quantity, unit price; add and remove lines), tax, shipping,
+    the invoice total as printed, and notes for the approver.
+  - Calculated for you: due date from the date and terms, line amounts, subtotal and
+    total, and a check that the lines, tax and shipping add up to the invoice total.
+  - Read-only, by design: vendor ID, payment method and bank account (bank details can
+    only change in the vendor master) and the date received.
+  - Checks before submitting: required fields, possible duplicates (same vendor and
+    invoice number), purchase order format and whether the vendor needs one, invoice
+    date not in the future or over a year old, and a balanced total. Problems are listed
+    at the top with links to each field.
+  - **Save draft** keeps the invoice in Received; **Submit for approval** moves it to
+    Pending approval and returns to the dashboard with a confirmation.
+  - The original invoice is shown beside the form for checking.
+  - Warns before leaving with unsaved changes. Invoices past Received open read-only.
+- **Reset demo changes** button on the dashboard.
+
+### Fixed
+- The invoice details panel now closes with the close button, Esc or a click outside it.
+
 ## 1.1.0 (build 20261027.2) – 2026-10-27
 
 ### Added

@@ -37,12 +37,19 @@ const RAW_INVOICES = [
   ['INV-10400', 'Unknown Vendor Ltd',     -41, -11,   3300.00, 'rejected'],
 ];
 
-const INVOICES = RAW_INVOICES.map(([number, vendor, invOffset, dueOffset, amount, status]) => {
+// Invoices as they were received, before any changes made in data entry.
+const ORIGINAL_INVOICES = RAW_INVOICES.map(([number, vendor, invOffset, dueOffset, amount, status]) => {
   const day = (offset) => {
     const d = new Date();
     d.setHours(0, 0, 0, 0);
     d.setDate(d.getDate() + offset);
     return d;
   };
-  return { number, vendor, invoiceDate: day(invOffset), dueDate: day(dueOffset), amount, status };
+  // `id` never changes; `number` is the supplier's invoice number and can be corrected in data entry.
+  return { id: number, number, vendor, invoiceDate: day(invOffset), dueDate: day(dueOffset), amount, status };
 });
+
+// Invoices with any saved data entry changes applied (see invoice-store.js).
+const INVOICE_EDITS = typeof loadInvoiceEdits === 'function' ? loadInvoiceEdits() : {};
+const INVOICES = ORIGINAL_INVOICES.map((inv) =>
+  (typeof applyInvoiceEdit === 'function' ? applyInvoiceEdit(inv, INVOICE_EDITS[inv.id]) : inv));

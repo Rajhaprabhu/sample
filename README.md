@@ -3,7 +3,7 @@
 A web front end for an accounts payable application: sign in, review invoices by
 status and age, and reset a forgotten password.
 
-**Version 1.1.0** (build 20261027.2) · Developed by Claude Code · Licensed to Rajha
+**Version 1.2.0** (build 20261027.3) · Developed by Claude Code · Licensed to Rajha
 
 ## Pages
 
@@ -13,6 +13,7 @@ status and age, and reset a forgotten password.
 | Forgot password | `login/forgot-password.html` |
 | Choose a new password | `login/reset-password.html` |
 | Invoice dashboard (click an invoice for its details) | `dashboard/index.html` |
+| Data entry for received invoices | `dashboard/data-entry.html?id=INV-10421` |
 | Help & support, privacy policy, terms of use, accessibility, security reporting | `info/*.html` |
 
 Every page shares one footer (`shared/app-info.js` and `shared/footer.css`) with
@@ -33,7 +34,9 @@ any valid email and a password of 8 or more characters.
 ## Status
 
 This is a front-end demo. Sign-in, password reset emails and invoice data are
-placeholders that need to be connected to a backend before real use. See the
+placeholders that need to be connected to a backend before real use. Changes
+made on the data entry page are kept in the browser's local storage (use
+**Reset demo changes** on the dashboard to undo them); see `dashboard/invoice-store.js`. See the
 comments in `login/script.js`, `login/forgot-password.js`,
 `login/reset-password.js` and `dashboard/data.js`.
 

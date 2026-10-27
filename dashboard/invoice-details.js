@@ -22,7 +22,7 @@ const STEP_POSITION = {
 
 // Actions a user would take next, by status. In the demo they only show a message.
 const ACTIONS = {
-  received: [['Submit for approval', 'primary'], ['Edit coding'], ['Reject']],
+  received: [['Open data entry', 'primary', (inv) => `data-entry.html?id=${encodeURIComponent(inv.id)}`], ['Reject']],
   pending: [['Approve', 'primary'], ['Reject'], ['Send reminder']],
   approved: [['Schedule payment', 'primary'], ['Put on hold']],
   scheduled: [['Change payment date'], ['Cancel payment']],
@@ -203,8 +203,12 @@ function discountNote(d, today) {
 }
 
 function renderActions(inv) {
-  const buttons = ACTIONS[inv.status].map(([label, kind]) =>
-    `<button type="button" class="${kind === 'primary' ? 'btn-primary' : 'ghost'}" data-action="${esc(label)}">${esc(label)}</button>`).join('');
+  const buttons = ACTIONS[inv.status].map(([label, kind, href]) => {
+    const cls = kind === 'primary' ? 'btn-primary' : 'ghost';
+    return href
+      ? `<a class="${cls} button-link" href="${href(inv)}">${esc(label)}</a>`
+      : `<button type="button" class="${cls}" data-action="${esc(label)}">${esc(label)}</button>`;
+  }).join('');
   return `<div class="d-actions">${buttons}</div>`;
 }
 
@@ -279,8 +283,8 @@ function renderMatching(d) {
   }
   const label = { ok: 'Matches', variance: 'Variance', missing: 'Missing', duplicate: 'Possible duplicate', pending: 'To check', na: 'Not needed' };
   const docs = [
-    ['Purchase order', d.poNumber, d.match.po],
-    ['Goods receipt', d.vendor.matching === '3-way' ? `GR-${d.poNumber.slice(3)}` : 'Services', d.match.receipt],
+    ['Purchase order', d.poNumber || 'Not entered', d.match.po],
+    ['Goods receipt', d.vendor.matching === '3-way' && d.poNumber ? `GR-${d.poNumber.slice(3)}` : 'Services', d.match.receipt],
     ['Invoice', 'This invoice', d.match.invoice],
   ];
   return `
@@ -351,7 +355,7 @@ function renderActivity(d) {
 // ---------- open / close ----------
 
 function openInvoice(number, trigger) {
-  const inv = INVOICES.find((i) => i.number === number);
+  const inv = INVOICES.find((i) => i.id === number);
   if (!inv) return;
   const d = getInvoiceDetails(inv);
 
@@ -431,6 +435,7 @@ document.addEventListener('keydown', (e) => {
 
 // Rows open the panel on click; the invoice number is a real button for keyboard users.
 document.getElementById('invoice-rows').addEventListener('click', (e) => {
+  if (e.target.closest('a')) return; // data entry link: let it navigate
   const tr = e.target.closest('tr[data-number]');
   if (tr) openInvoice(tr.dataset.number, tr.querySelector('.row-link'));
 });
@@ -438,7 +443,13 @@ document.getElementById('invoice-rows').addEventListener('click', (e) => {
 // Open the invoice named in the address (e.g. dashboard/index.html#INV-10421).
 function openFromHash() {
   const number = decodeURIComponent(location.hash.slice(1));
-  if (INVOICES.some((i) => i.number === number)) openInvoice(number);
+  if (INVOICES.some((i) => i.id === number)) openInvoice(number);
 }
 window.addEventListener('hashchange', openFromHash);
-if (typeof user !== 'undefined' && user) openFromHash();
+if (typeof user !== 'undefined' && user) {
+  openFromHash();
+  // Back from data entry after submitting.
+  const submitted = new URLSearchParams(window.location.search).get('submitted');
+  const done = INVOICES.find((i) => i.id === submitted);
+  if (done) showToast(`${done.number} was submitted for approval.`);
+}

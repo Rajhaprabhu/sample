@@ -1,37 +1,5 @@
 // Renders the invoice status dashboard from INVOICES / STATUSES (data.js).
 
-const SESSION_KEY = 'apPortalUser';
-
-// Returns the signed-in user as { name, email }, or null if not signed in.
-function getSessionUser() {
-  try {
-    const stored = JSON.parse(sessionStorage.getItem(SESSION_KEY) || localStorage.getItem(SESSION_KEY));
-    return stored && stored.name ? stored : null;
-  } catch {
-    return null;
-  }
-}
-
-function initials(name) {
-  return name.split(/\s+/).filter(Boolean).slice(0, 2).map((w) => w[0].toUpperCase()).join('');
-}
-
-function clearSession() {
-  try {
-    sessionStorage.removeItem(SESSION_KEY);
-    localStorage.removeItem(SESSION_KEY);
-  } catch {
-    // Storage unavailable; nothing to clear.
-  }
-}
-
-// Demo-only guard: send visitors who haven't signed in back to the login page.
-// A real app must enforce this on the server.
-const user = getSessionUser();
-if (!user) {
-  window.location.replace('../login/index.html');
-}
-
 const AGING_BUCKETS = [
   { key: 'current', label: 'Not yet due', test: (d) => d <= 0 },
   { key: '1-30',    label: '1–30 days',   test: (d) => d >= 1 && d <= 30 },
@@ -161,10 +129,12 @@ function renderTable() {
     const days = daysPastDue(inv);
     const overdue = days > 0 && !CLOSED_STATUSES.includes(inv.status);
     const tr = document.createElement('tr');
-    tr.dataset.number = inv.number;
+    tr.dataset.number = inv.id;
     tr.className = 'clickable';
     tr.innerHTML = `
-      <td class="mono"><button type="button" class="row-link" aria-label="View invoice ${inv.number} from ${inv.vendor}">${inv.number}</button></td>
+      <td class="mono">${inv.status === 'received'
+        ? `<a class="row-link" href="data-entry.html?id=${encodeURIComponent(inv.id)}" aria-label="Open data entry for invoice ${inv.number} from ${inv.vendor}">${inv.number}</a>`
+        : `<button type="button" class="row-link" aria-label="View invoice ${inv.number} from ${inv.vendor}">${inv.number}</button>`}</td>
       <td>${inv.vendor}</td>
       <td>${dateFmt.format(inv.invoiceDate)}</td>
       <td>${dateFmt.format(inv.dueDate)}${overdue ? ` <span class="overdue">${days}d overdue</span>` : ''}</td>
@@ -192,11 +162,20 @@ function render() {
 }
 
 if (user) {
-  const userBox = document.getElementById('user');
-  document.getElementById('user-name').textContent = user.name;
-  document.getElementById('user-initials').textContent = initials(user.name);
-  userBox.title = `Signed in as ${user.name} (${user.email})`;
+  renderUserBar();
   document.getElementById('as-of').textContent = `As of ${dateFmt.format(today())}`;
+
+  // Arriving from the breadcrumb on the data entry page, e.g. ?status=received
+  const startStatus = new URLSearchParams(window.location.search).get('status');
+  if (STATUSES.some((s) => s.key === startStatus)) state.status = startStatus;
+
+  // Demo only: changes from data entry are kept in this browser; offer a reset.
+  const resetButton = document.getElementById('reset-demo');
+  resetButton.hidden = !hasInvoiceEdits();
+  resetButton.addEventListener('click', () => {
+    clearInvoiceEdits();
+    window.location.href = window.location.pathname;
+  });
 
   document.getElementById('search').addEventListener('input', (e) => {
     state.search = e.target.value;
@@ -211,10 +190,6 @@ if (user) {
     render();
   });
 
-  document.getElementById('sign-out').addEventListener('click', () => {
-    clearSession();
-    window.location.href = '../login/index.html';
-  });
 
   render();
 }
