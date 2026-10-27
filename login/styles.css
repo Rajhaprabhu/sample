@@ -200,16 +200,3 @@ input[aria-invalid="true"] { border-color: var(--danger); }
 .requirements li::before { content: "○"; display: inline-block; width: 1.4em; }
 .requirements li.met { color: var(--success); }
 .requirements li.met::before { content: "✓"; }
-
-/* Application footer (content filled in by shared/app-info.js) */
-.app-footer {
-  padding: 16px 24px;
-  border-top: 1px solid var(--border);
-  background: var(--surface);
-  color: var(--muted);
-  font-size: 0.8rem;
-  line-height: 1.5;
-  text-align: center;
-}
-.app-footer p { margin: 0; }
-.app-footer .sep { margin: 0 6px; }

@@ -14,7 +14,11 @@ First release.
   On hold, Paid, Rejected), an aging breakdown of unpaid invoices and a searchable invoice list.
 - Forgot password and reset password pages.
 - Signed-in user's name and initials in the dashboard header.
-- Footer on every page with copyright, licence, version and build details.
+- Footer on every page with support and legal links, support contact, copyright and licence,
+  version, build, release date, time zone, an environment badge for non-production builds,
+  and "Back to top" on long pages.
+- Help & support, privacy policy (including cookies and browser storage), terms of use,
+  accessibility statement and security reporting pages (templates to review before going live).
 
 ### Known limitations
 - Sign-in, password reset and invoice data are demo placeholders; there is no backend yet.

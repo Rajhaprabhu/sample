@@ -13,9 +13,17 @@ status and age, and reset a forgotten password.
 | Forgot password | `login/forgot-password.html` |
 | Choose a new password | `login/reset-password.html` |
 | Invoice dashboard | `dashboard/index.html` |
+| Help & support, privacy policy, terms of use, accessibility, security reporting | `info/*.html` |
 
-`shared/app-info.js` holds the application name, version, build and licence
-details shown in the footer of every page.
+Every page shares one footer (`shared/app-info.js` and `shared/footer.css`) with
+support and legal links, the support contact, copyright and licence, and the
+version, build, release date and environment.
+
+## Before going live
+
+- Replace the placeholder support email and hours in `shared/app-info.js`.
+- Set `environment` to `'Production'` in `shared/app-info.js` to hide the environment badge.
+- Have the pages in `info/` reviewed and fill in the details marked in [square brackets].
 
 ## Running it
 

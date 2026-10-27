@@ -1,0 +1,77 @@
+/* Application footer, shared by every page. Content comes from shared/app-info.js.
+   Uses the colour tokens (--surface, --border, --muted, --text, --primary) that
+   each page's own stylesheet defines for light and dark mode. */
+
+.app-footer {
+  border-top: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--muted);
+  font-size: 0.8rem;
+  line-height: 1.6;
+  padding: 20px max(16px, env(safe-area-inset-right, 0px)) calc(20px + env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px));
+}
+
+.footer-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  text-align: center;
+}
+.footer-inner p { margin: 0; }
+
+.footer-nav ul {
+  list-style: none;
+  margin: 0 0 4px;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 4px 20px;
+}
+
+.app-footer a {
+  color: var(--text);
+  text-decoration: underline;
+  text-decoration-color: var(--border);
+  text-underline-offset: 3px;
+  /* Comfortable tap target without changing the visual size much */
+  display: inline-block;
+  padding: 4px 0;
+}
+.app-footer a:hover { color: var(--primary); text-decoration-color: currentColor; }
+.app-footer a:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; border-radius: 2px; }
+.app-footer a[aria-current="page"] { font-weight: 600; text-decoration: none; }
+
+.footer-meta {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 4px 14px;
+  font-variant-numeric: tabular-nums;
+}
+
+.env-badge {
+  padding: 1px 8px;
+  border-radius: 999px;
+  border: 1px solid #c98a00;
+  color: #8a5a00;
+  background: #fff6e0;
+  font-weight: 600;
+}
+@media (prefers-color-scheme: dark) {
+  .env-badge { color: #f0b84a; background: #3a2a0a; border-color: #8a5a00; }
+}
+
+.sep { margin: 0 6px; }
+
+@media (max-width: 600px) {
+  .footer-nav ul { gap: 0 16px; }
+  .footer-support .sep { display: block; height: 0; margin: 0; visibility: hidden; }
+}
+
+/* "Back to top" moves focus to <main>; no outline needed for that programmatic focus */
+main:focus { outline: none; }
