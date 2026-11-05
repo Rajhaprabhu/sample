@@ -36,6 +36,17 @@ See [db/README.md](db/README.md).
 No build step is needed. Open `login/index.html` in a browser, then sign in with
 any valid email and a password of 8 or more characters.
 
+## Deployment
+
+The site is published to GitHub Pages by `.github/workflows/deploy-pages.yml` on
+every push to `master` (or run it by hand from the Actions tab). Only the web app
+is published: `index.html`, `login/`, `dashboard/`, `info/`, `shared/` and `LICENSE`.
+
+Live site: https://rajhaprabhu.github.io/sample/
+
+One-time setup: in the repository's **Settings > Pages**, set **Source** to
+**GitHub Actions**.
+
 ## Status
 
 This is a front-end demo. Sign-in, password reset emails and invoice data are
