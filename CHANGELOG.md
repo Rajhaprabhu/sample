@@ -17,6 +17,10 @@ format `YYYYMMDD.N` (date of the build, then the build count that day).
 - The database enforces the screens' rules too: duplicates, balanced totals,
   approval comments, approval chain by amount, and separation of duties.
 - Sample data matching the demo (`db/seed.sql`) and 23 checks (`db/tests/workflow_test.sql`).
+- **Login redesign** with an accounts payable theme: a ledger-ruled panel with a stack of
+  invoice slips (the front one approved) and the invoice lifecycle, Received → Approved →
+  Scheduled → Paid. Applies to the sign-in, forgot password and reset password pages. On
+  phones it becomes a compact branded header instead of disappearing.
 - **Deployment to GitHub Pages** on every push to `master`
   (`.github/workflows/deploy-pages.yml`), and a root `index.html` that opens the sign-in page.
 

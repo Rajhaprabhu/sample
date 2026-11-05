@@ -50,27 +50,116 @@ body {
   flex: 1;
 }
 
-/* Brand panel */
+/* Brand panel: a ledger-ruled desk with a stack of invoice slips.
+   Uses its own fixed colours (it is always dark), separate from the form's theme. */
 .brand-panel {
-  background: var(--brand-bg);
-  color: var(--brand-text);
-  padding: 48px;
+  --ink: #0c1a2e;
+  --ink-2: #13253f;
+  --rule: rgba(160, 190, 230, 0.07);
+  --margin-rule: rgba(255, 120, 120, 0.22);
+  --paper: #fbfaf6;
+  --paper-ink: #1f2733;
+  --paper-muted: #6b7280;
+  --stamp: #1f8a5b;
+  --amber: #e0a43a;
+  position: relative;
+  overflow: hidden;
+  color: #e7eef9;
+  padding: 48px clamp(32px, 5vw, 64px);
   display: flex;
   flex-direction: column;
   justify-content: center;
-  gap: 24px;
+  gap: 32px;
+  background:
+    /* red margin line, like a ledger book */
+    linear-gradient(90deg, transparent 0 calc(clamp(32px, 5vw, 64px) - 14px), var(--margin-rule) 0 calc(clamp(32px, 5vw, 64px) - 13px), transparent 0),
+    /* horizontal ledger rules */
+    repeating-linear-gradient(180deg, transparent 0 31px, var(--rule) 31px 32px),
+    radial-gradient(120% 80% at 0% 0%, var(--ink-2), var(--ink));
 }
+
 .brand { display: flex; align-items: center; gap: 12px; }
 .logo {
   display: grid; place-items: center;
   width: 44px; height: 44px;
-  border-radius: 10px;
-  background: var(--primary);
-  color: #fff; font-weight: 700;
+  border-radius: 10px 10px 10px 2px;   /* a folder tab */
+  background: linear-gradient(160deg, #3b74ff, #1f4fd6);
+  box-shadow: inset 0 -3px 0 rgba(0, 0, 0, 0.2);
+  color: #fff; font-weight: 800; letter-spacing: 0.02em;
 }
-.brand-name { font-size: 1.25rem; font-weight: 600; }
-.brand-panel h2 { font-size: 2rem; line-height: 1.2; margin: 0; max-width: 18ch; }
-.features { margin: 0; padding-left: 20px; line-height: 2; opacity: 0.85; }
+.brand-name { font-size: 1.2rem; font-weight: 650; letter-spacing: 0.01em; }
+
+.brand-copy { display: flex; flex-direction: column; gap: 10px; max-width: 30rem; }
+.eyebrow {
+  margin: 0; font-size: 0.75rem; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.14em; color: var(--amber);
+}
+.brand-panel h2 { font-size: clamp(1.7rem, 2.6vw, 2.3rem); line-height: 1.15; margin: 0; text-wrap: balance; }
+.lede { margin: 0; line-height: 1.55; color: rgba(231, 238, 249, 0.78); max-width: 34ch; }
+
+/* Invoice slips */
+.slips { position: relative; width: min(100%, 380px); height: 236px; }
+.slip {
+  position: absolute; inset: 0 auto auto 0;
+  width: 100%; border-radius: 6px;
+  background: var(--paper); color: var(--paper-ink);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35);
+}
+.slip-back { height: 190px; transform: translate(26px, 2px) rotate(4deg); opacity: 0.55; }
+.slip-mid  { height: 200px; transform: translate(13px, 8px) rotate(2deg); opacity: 0.8; }
+.slip-tag {
+  position: absolute; top: 10px; right: 12px;
+  font-size: 0.62rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--paper-muted);
+}
+.slip-front {
+  position: relative; padding: 16px 18px 14px;
+  transform: rotate(-1.2deg);
+  font-size: 0.8rem;
+}
+.slip-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; margin-bottom: 10px; }
+.slip-head div { display: flex; flex-direction: column; gap: 2px; }
+.slip-head span { color: var(--paper-muted); font-size: 0.72rem; }
+.slip-word { font-weight: 800; letter-spacing: 0.22em; color: #9aa3af !important; font-size: 0.8rem !important; }
+.slip-line, .slip-total { display: flex; justify-content: space-between; gap: 12px; padding: 5px 0; font-variant-numeric: tabular-nums; }
+.slip-line { border-bottom: 1px dashed #e2ddd0; }
+.slip-line span:last-child, .slip-total span:last-child { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+.slip-total { margin-top: 4px; padding-top: 8px; border-top: 2px solid var(--paper-ink); font-weight: 700; }
+
+/* Stamped across the slip's bottom corner, clear of every figure. */
+.stamp {
+  position: absolute; right: -14px; bottom: -18px;
+  padding: 4px 12px;
+  border: 3px solid var(--stamp); border-radius: 6px;
+  background: var(--paper);
+  color: var(--stamp);
+  font-weight: 800; font-size: 0.95rem; text-transform: uppercase; letter-spacing: 0.12em;
+  transform: rotate(-10deg);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+}
+@media (prefers-reduced-motion: no-preference) {
+  .stamp { animation: stamp-in 0.5s 0.4s cubic-bezier(0.2, 1.4, 0.4, 1) both; }
+  @keyframes stamp-in { from { transform: rotate(-10deg) scale(1.6); opacity: 0; } }
+}
+
+/* The invoice lifecycle: a real sequence, so it is drawn as one */
+.flow { list-style: none; margin: 0; padding: 0; display: flex; gap: 0; max-width: 380px; }
+.flow li {
+  flex: 1; position: relative; padding-top: 18px;
+  font-size: 0.75rem; color: rgba(231, 238, 249, 0.6);
+}
+.flow li::before {
+  content: ""; position: absolute; top: 3px; left: 0;
+  width: 10px; height: 10px; border-radius: 50%;
+  border: 2px solid rgba(231, 238, 249, 0.45); background: var(--ink);
+}
+.flow li::after {
+  content: ""; position: absolute; top: 8px; left: 14px; right: 4px; height: 2px;
+  background: rgba(231, 238, 249, 0.18);
+}
+.flow li:last-child::after { display: none; }
+.flow li.done { color: #e7eef9; }
+.flow li.done::before { background: var(--stamp); border-color: var(--stamp); }
+.flow li.done::after { background: var(--stamp); }
 
 /* Form panel */
 .form-panel { display: grid; place-items: center; padding: 32px 16px; }
@@ -79,6 +168,7 @@ body {
   max-width: 400px;
   background: var(--surface);
   border: 1px solid var(--border);
+  border-top: 4px solid var(--primary);
   border-radius: var(--radius);
   padding: 32px;
   box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
@@ -157,7 +247,17 @@ input[aria-invalid="true"] { border-color: var(--danger); }
 
 @media (max-width: 800px) {
   .layout { grid-template-columns: 1fr; }
-  .brand-panel { display: none; }
+  /* On phones the panel becomes a short branded header above the form. */
+  .brand-panel {
+    padding: 24px max(16px, env(safe-area-inset-right, 0px)) 28px max(16px, env(safe-area-inset-left, 0px));
+    gap: 16px;
+    background:
+      repeating-linear-gradient(180deg, transparent 0 31px, var(--rule) 31px 32px),
+      radial-gradient(120% 80% at 0% 0%, var(--ink-2), var(--ink));
+  }
+  .brand-panel h2 { font-size: 1.35rem; }
+  .lede, .slips, .flow { display: none; }
+  .form-panel { padding-top: 24px; }
   .card { padding: 24px; }
 }
 
