@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Dapper" Version="2.1.66" />
+    <PackageReference Include="Npgsql" Version="10.0.0" />
+  </ItemGroup>
+
+  <!-- Published builds carry the screens in wwwroot; when run from source the app finds them in the repository. (Plain files, not static web assets, so development builds need no wwwroot folder.) -->
+  <ItemGroup>
+    <None Include="..\..\..\login\**" LinkBase="wwwroot\login" CopyToPublishDirectory="PreserveNewest" />
+    <None Include="..\..\..\dashboard\**" LinkBase="wwwroot\dashboard" CopyToPublishDirectory="PreserveNewest" />
+    <None Include="..\..\..\info\**" LinkBase="wwwroot\info" CopyToPublishDirectory="PreserveNewest" />
+    <None Include="..\..\..\shared\**" LinkBase="wwwroot\shared" CopyToPublishDirectory="PreserveNewest" />
+  </ItemGroup>
+
+</Project>

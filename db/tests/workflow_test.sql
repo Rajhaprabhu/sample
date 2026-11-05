@@ -84,12 +84,12 @@ SELECT pg_temp.expect_error('Approval needs comments of at least 10 characters',
 SELECT pg_temp.expect_error('The person who submitted the invoice cannot approve it',
   format('SELECT ap.approve_invoice(%s, %s, %L)', pg_temp.inv('INV-10422'), pg_temp.uid('jane.doe@company.example'),
          'Looks fine to me, approving.'),
-  'cannot approve it');
+  'so someone else must approve it');
 
 SELECT pg_temp.expect_error('An approver without the step''s role is refused',
   format('SELECT ap.approve_invoice(%s, %s, %L)', pg_temp.inv('INV-10422'), pg_temp.uid('tom.becker@company.example'),
          'Freight charges look right.'),
-  'needs the budget_owner role');
+  'needs the Budget owner role');
 
 SELECT pg_temp.expect('Budget owner approves step 1; the invoice stays pending for the next approver',
   ap.approve_invoice(pg_temp.inv('INV-10422'), pg_temp.uid('priya.nair@company.example'),

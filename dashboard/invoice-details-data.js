@@ -78,6 +78,11 @@ const VENDORS = {
   },
 };
 
+// Dropdown choices on the data entry page (from the vendor master defaults).
+const ACTIVE_VENDOR_NAMES = Object.keys(VENDORS).filter((name) => VENDORS[name].id.startsWith('V-'));
+const GL_ACCOUNT_OPTIONS = [...new Set(ACTIVE_VENDOR_NAMES.map((v) => VENDORS[v].gl))].sort();
+const COST_CENTER_OPTIONS = [...new Set(ACTIVE_VENDOR_NAMES.map((v) => VENDORS[v].costCenter))].sort();
+
 // Status-specific facts that can't be derived from the invoice list.
 const INVOICE_OVERRIDES = {
   'INV-10388': {
@@ -125,28 +130,6 @@ const INVOICE_OVERRIDES = {
 
 // ---------- helpers ----------
 
-function addDays(date, days) {
-  const d = new Date(date);
-  d.setDate(d.getDate() + days);
-  return d;
-}
-
-function dayDiff(later, earlier) {
-  return Math.round((later - earlier) / 86400000);
-}
-
-function startOfDay(date) {
-  const d = new Date(date);
-  d.setHours(0, 0, 0, 0);
-  return d;
-}
-
-function startOfToday() {
-  const d = new Date();
-  d.setHours(0, 0, 0, 0);
-  return d;
-}
-
 // Small deterministic number from the invoice number, so a given invoice always
 // shows the same sample details.
 function seedOf(number) {
@@ -156,13 +139,6 @@ function seedOf(number) {
 function at(date, hours, minutes) {
   const d = new Date(date);
   d.setHours(hours, minutes, 0, 0);
-  return d;
-}
-
-// Next payment run: payments go out on Tuesdays and Fridays.
-function nextPaymentRun(from) {
-  let d = addDays(from, 1);
-  while (![2, 5].includes(d.getDay())) d = addDays(d, 1);
   return d;
 }
 

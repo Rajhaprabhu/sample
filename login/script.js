@@ -65,10 +65,17 @@ function nameFromEmail(address) {
   return words.map((w) => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ');
 }
 
-// Placeholder: simulates a network request. Swap for a real API call, e.g.
-//   fetch('/api/auth/login', { method: 'POST', credentials: 'include', ... })
-// which should respond with the signed-in user's profile ({ name, email }).
-function authenticate({ email, password }) {
+// Signs in through the API when the .NET backend serves the page (it sets an
+// HttpOnly session cookie); otherwise simulates it for the demo.
+async function authenticate({ email, password, remember }) {
+  if (apiMode()) {
+    try {
+      const user = await apiFetch('/auth/login', { method: 'POST', body: { email, password, remember } });
+      return { ok: true, user };
+    } catch (err) {
+      return { ok: false, message: err.message };
+    }
+  }
   return new Promise((resolve) => {
     const ok = email.length > 0 && password.length >= 8;
     setTimeout(() => resolve({ ok, user: ok ? { name: nameFromEmail(email), email } : null }), 800);
@@ -125,13 +132,14 @@ form.addEventListener('submit', async (e) => {
 
   setLoading(true);
   try {
-    const result = await authenticate({ email: email.value.trim(), password: password.value });
+    const remember = document.getElementById('remember').checked;
+    const result = await authenticate({ email: email.value.trim(), password: password.value, remember });
     if (result.ok) {
       showAlert('Signed in successfully. Redirecting to the dashboard…', 'success');
-      startSession(result.user, document.getElementById('remember').checked);
+      if (!apiMode()) startSession(result.user, remember);
       window.location.href = '../dashboard/index.html';
     } else {
-      showAlert('Incorrect email or password.');
+      showAlert(result.message || 'Incorrect email or password.');
     }
   } catch {
     showAlert('Something went wrong. Please try again.');

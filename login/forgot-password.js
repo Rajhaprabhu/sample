@@ -17,7 +17,11 @@ const RESEND_COOLDOWN_SECONDS = 30;
 //   fetch('/api/auth/forgot-password', { method: 'POST', body: JSON.stringify({ email }) })
 // The backend should respond the same way whether or not the account exists,
 // so the page never reveals which emails are registered.
-function requestPasswordReset(address) {
+async function requestPasswordReset(address) {
+  if (apiMode()) {
+    const result = await apiFetch('/auth/forgot-password', { method: 'POST', body: { email: address } });
+    return { ok: true, resetLink: result.devResetLink };
+  }
   return new Promise((resolve) => {
     setTimeout(() => resolve({ ok: true, demoToken: `demo-${Date.now().toString(36)}` }), 800);
   });
@@ -41,10 +45,13 @@ function validate() {
   return !message;
 }
 
-function showSent(address, token) {
+// `link` is the reset link to show on screen: the demo's, or the API's in
+// development (where no email is sent). Without one, the notice is hidden.
+function showSent(address, link) {
   document.getElementById('sent-email').textContent = address;
-  const params = new URLSearchParams({ token, email: address });
-  document.getElementById('demo-reset-link').href = `reset-password.html?${params}`;
+  const notice = document.querySelector('.notice');
+  notice.hidden = !link;
+  if (link) document.getElementById('demo-reset-link').href = link;
   form.hidden = true;
   sentPanel.hidden = false;
 }
@@ -63,6 +70,11 @@ function startResendCooldown() {
       resendBtn.textContent = `Resend email (${remaining}s)`;
     }
   }, 1000);
+}
+
+function resetLinkFrom(result, address) {
+  if (result.resetLink) return result.resetLink;
+  return result.demoToken ? `reset-password.html?${new URLSearchParams({ token: result.demoToken, email: address })}` : null;
 }
 
 // Pre-fill the email when arriving from the sign-in page.
@@ -86,7 +98,7 @@ form.addEventListener('submit', async (e) => {
   try {
     const address = email.value.trim();
     const result = await requestPasswordReset(address);
-    showSent(address, result.demoToken);
+    showSent(address, resetLinkFrom(result, address));
     startResendCooldown();
   } catch {
     formError.textContent = "We couldn't send the reset link. Check your connection and try again.";
@@ -101,7 +113,7 @@ resendBtn.addEventListener('click', async () => {
   resendBtn.textContent = 'Sending…';
   const address = email.value.trim();
   const result = await requestPasswordReset(address);
-  showSent(address, result.demoToken);
+  showSent(address, resetLinkFrom(result, address));
   startResendCooldown();
 });
 

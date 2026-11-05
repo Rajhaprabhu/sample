@@ -1,0 +1,33 @@
+# Runs the whole AP Portal locally: PostgreSQL with the schema and sample data,
+# and the .NET app on http://localhost:8080.
+#   docker compose up --build
+# For trying it out only: the passwords below are not secret. Sample users sign
+# in with the DemoData password.
+services:
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: ap_portal
+      POSTGRES_USER: ap_portal
+      POSTGRES_PASSWORD: ap_portal_dev
+    volumes:
+      - ./db/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
+      - ./db/seed.sql:/docker-entrypoint-initdb.d/02-seed.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ap_portal -d ap_portal"]
+      interval: 5s
+      retries: 10
+
+  api:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "8080:8080"
+    environment:
+      ConnectionStrings__ApPortal: "Host=db;Database=ap_portal;Username=ap_portal;Password=ap_portal_dev;Search Path=ap"
+      DemoData__Password: "Demo-Password-2026!"
+      Auth__ExposeResetLinkInResponse: "true"

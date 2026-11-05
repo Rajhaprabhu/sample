@@ -5,7 +5,7 @@
 
 const params = new URLSearchParams(window.location.search);
 const token = params.get('token');
-const accountEmail = params.get('email');
+let accountEmail = params.get('email');
 
 const form = document.getElementById('reset-form');
 const invalidPanel = document.getElementById('invalid-panel');
@@ -24,12 +24,28 @@ const RULES = {
 };
 
 // Placeholder: e.g. fetch(`/api/auth/reset-password/verify?token=${token}`)
-function verifyResetToken(value) {
+async function verifyResetToken(value) {
+  if (apiMode()) {
+    try {
+      const result = await apiFetch(`/auth/reset-password/verify?token=${encodeURIComponent(value || '')}`);
+      return { ok: true, email: result.email };
+    } catch {
+      return { ok: false };
+    }
+  }
   return Promise.resolve({ ok: Boolean(value) && value.startsWith('demo-') });
 }
 
 // Placeholder: e.g. fetch('/api/auth/reset-password', { method: 'POST', body: JSON.stringify({ token, password }) })
-function resetPassword({ token: value, password: newPassword }) {
+async function resetPassword({ token: value, password: newPassword }) {
+  if (apiMode()) {
+    try {
+      await apiFetch('/auth/reset-password', { method: 'POST', body: { token: value, password: newPassword } });
+      return { ok: true };
+    } catch (err) {
+      return { ok: false, message: err.message };
+    }
+  }
   return new Promise((resolve) => {
     setTimeout(() => resolve({ ok: Boolean(value) && newPassword.length > 0 }), 800);
   });
@@ -104,12 +120,14 @@ form.addEventListener('submit', async (e) => {
   setLoading(true);
   try {
     const result = await resetPassword({ token, password: password.value });
-    if (!result.ok) throw new Error('reset failed');
+    if (!result.ok) throw new Error(result.message || 'reset failed');
     const next = new URLSearchParams({ reset: '1' });
     if (accountEmail) next.set('email', accountEmail);
     window.location.href = `index.html?${next}`;
-  } catch {
-    formError.textContent = "We couldn't update your password. The link may have expired; request a new one.";
+  } catch (err) {
+    formError.textContent = err.message && err.message !== 'reset failed'
+      ? err.message
+      : "We couldn't update your password. The link may have expired; request a new one.";
     formError.hidden = false;
     setLoading(false);
   }
@@ -120,6 +138,7 @@ verifyResetToken(token).then((result) => {
     invalidPanel.hidden = false;
     return;
   }
+  if (result.email) accountEmail = result.email;
   if (accountEmail) document.getElementById('reset-email').textContent = accountEmail;
   form.hidden = false;
   checkRules();

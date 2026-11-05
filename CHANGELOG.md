@@ -4,9 +4,23 @@ All notable changes to AP Portal are listed here. Versions follow
 [Semantic Versioning](https://semver.org/). Build numbers use the
 format `YYYYMMDD.N` (date of the build, then the build count that day).
 
-## Unreleased
+## 2.0.0 (build 20261105.1) – 2026-11-05
 
 ### Added
+- **.NET backend** (`backend/`, ASP.NET Core 10) that serves the screens and an API on the
+  PostgreSQL database:
+  - Sign-in with server-side sessions in an HttpOnly, SameSite=Strict cookie, lockout
+    after 5 failed attempts, rate limiting, and sign-out that ends the session.
+  - Forgot / reset password with single-use, 30-minute links (logged until an email
+    service is connected).
+  - Invoices with full details; data entry save (with protection against overwriting
+    someone else's changes) and submit; approve with comments. The database enforces
+    the business rules.
+  - Security headers (Content Security Policy and others); only the app's own folders are served.
+  - 15 integration tests, a Dockerfile, `docker-compose.yml`, and a CI workflow that runs
+    the database and API tests.
+- The screens use the API when the .NET app serves them, and their built-in sample data
+  otherwise (demo, GitHub Pages).
 - **Database schema** (`db/`, PostgreSQL 14+) for every screen built so far: users,
   roles, sessions and password reset tokens; vendor master with verified bank
   accounts; purchase orders and goods receipts; invoices, lines, documents and

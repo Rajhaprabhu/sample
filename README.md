@@ -3,7 +3,7 @@
 A web front end for an accounts payable application: sign in, review invoices by
 status and age, and reset a forgotten password.
 
-**Version 1.4.0** (build 20261027.5) · Developed by Claude Code · Licensed to Rajha
+**Version 2.0.0** (build 20261105.1) · Developed by Claude Code · Licensed to Rajha
 
 ## Pages
 
@@ -25,6 +25,19 @@ version, build, release date and environment.
 - Replace the placeholder support email and hours in `shared/app-info.js`.
 - Set `environment` to `'Production'` in `shared/app-info.js` to hide the environment badge.
 - Have the pages in `info/` reviewed and fill in the details marked in [square brackets].
+
+## Backend (.NET)
+
+`backend/` holds an ASP.NET Core 10 app that serves these screens with a real API:
+sign-in with server sessions, password reset, invoices, data entry and approvals,
+on the PostgreSQL database in `db/`. See [backend/README.md](backend/README.md).
+
+```sh
+docker compose up --build        # database + app on http://localhost:8080
+```
+
+Opened as plain files (or on GitHub Pages) the screens keep working on their
+built-in sample data.
 
 ## Database
 

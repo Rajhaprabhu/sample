@@ -4,9 +4,10 @@
 
 const TERMS = ['Due on receipt', 'Net 15', 'Net 30', 'Net 45', 'Net 60', '2/10 Net 30'];
 const CURRENCIES = ['USD', 'EUR', 'GBP', 'INR', 'CAD'];
-const REGISTERED_VENDORS = Object.keys(VENDORS).filter((name) => VENDORS[name].id.startsWith('V-'));
-const GL_ACCOUNTS = [...new Set(REGISTERED_VENDORS.map((v) => VENDORS[v].gl))].sort();
-const COST_CENTERS = [...new Set(REGISTERED_VENDORS.map((v) => VENDORS[v].costCenter))].sort();
+// Vendor and coding choices come from the data source (sample data or the API).
+const REGISTERED_VENDORS = ACTIVE_VENDOR_NAMES;
+const GL_ACCOUNTS = GL_ACCOUNT_OPTIONS;
+const COST_CENTERS = COST_CENTER_OPTIONS;
 
 const params = new URLSearchParams(window.location.search);
 const invoiceId = params.get('id');
@@ -292,7 +293,7 @@ function setStatus(message, tone) {
   el.className = `save-status ${tone || ''}`;
 }
 
-function saveDraft() {
+async function saveDraft() {
   const data = collect();
   const errors = validate(data, false);
   showErrors(errors);
@@ -300,16 +301,17 @@ function saveDraft() {
     setStatus('Draft not saved. Fix the highlighted fields.', 'bad');
     return;
   }
-  const stored = saveInvoiceEdit(invoiceId, buildEdit(data, 'received'));
-  if (!stored) {
-    setStatus('This browser blocked saving. Your changes are only on this page.', 'bad');
+  setStatus('Saving…', '');
+  const result = await storeSaveDraft(invoiceId, buildEdit(data, 'received'));
+  if (!result.ok) {
+    setStatus(result.error, 'bad');
     return;
   }
   savedSnapshot = snapshot();
   setStatus(`Draft saved at ${timeFmt.format(new Date())}. The invoice stays in Received.`, 'ok');
 }
 
-function submitForApproval(e) {
+async function submitForApproval(e) {
   e.preventDefault();
   const data = collect();
   const errors = validate(data, true);
@@ -318,9 +320,10 @@ function submitForApproval(e) {
     setStatus(`${errors.length} ${errors.length === 1 ? 'problem' : 'problems'} to fix before submitting.`, 'bad');
     return;
   }
-  const stored = saveInvoiceEdit(invoiceId, buildEdit(data, 'pending'));
-  if (!stored) {
-    setStatus('This browser blocked saving, so the invoice could not be submitted.', 'bad');
+  setStatus('Submitting…', '');
+  const result = await storeSubmit(invoiceId, buildEdit(data, 'pending'));
+  if (!result.ok) {
+    setStatus(result.error, 'bad');
     return;
   }
   savedSnapshot = snapshot();

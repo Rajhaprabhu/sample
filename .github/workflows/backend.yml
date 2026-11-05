@@ -1,0 +1,43 @@
+# Runs the database checks and the .NET API tests against PostgreSQL.
+name: Backend tests
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_DB: ap_portal_test
+          POSTGRES_USER: ap_portal
+          POSTGRES_PASSWORD: ap_portal_dev
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U ap_portal" --health-interval 5s --health-retries 10
+    env:
+      PGPASSWORD: ap_portal_dev
+      AP_TEST_DATABASE: "Host=localhost;Port=5432;Database=ap_portal_test;Username=ap_portal;Password=ap_portal_dev;Search Path=ap"
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Database checks
+        run: |
+          psql -h localhost -U ap_portal -d ap_portal_test -v ON_ERROR_STOP=1 -q -f db/schema.sql
+          psql -h localhost -U ap_portal -d ap_portal_test -v ON_ERROR_STOP=1 -q -f db/seed.sql
+          psql -h localhost -U ap_portal -d ap_portal_test -v ON_ERROR_STOP=1 -q -f db/tests/workflow_test.sql
+
+      # The test fixture rebuilds the schema itself before the API tests run.
+      - name: API tests
+        run: dotnet test backend --configuration Release

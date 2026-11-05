@@ -396,7 +396,8 @@ LANGUAGE plpgsql AS $$
 BEGIN
   IF NEW.decided_by IS NOT NULL AND NEW.decided_by = (
        SELECT submitted_by FROM invoices WHERE id = NEW.invoice_id) THEN
-    RAISE EXCEPTION 'The person who submitted invoice % cannot approve it', NEW.invoice_id
+    RAISE EXCEPTION 'You submitted invoice %, so someone else must approve it',
+      (SELECT doc_number FROM invoices WHERE id = NEW.invoice_id)
       USING ERRCODE = 'check_violation';
   END IF;
   RETURN NEW;
@@ -609,7 +610,8 @@ BEGIN
     RAISE EXCEPTION 'Invoice % has no approval step waiting', p_invoice_id;
   END IF;
   IF NOT EXISTS (SELECT 1 FROM user_roles WHERE user_id = p_user_id AND role_code IN (v_step.role_code, 'admin')) THEN
-    RAISE EXCEPTION 'This step needs the % role', v_step.role_code USING ERRCODE = 'insufficient_privilege';
+    RAISE EXCEPTION 'This approval step needs the % role',
+      (SELECT name FROM roles WHERE code = v_step.role_code) USING ERRCODE = 'insufficient_privilege';
   END IF;
 
   -- The separation-of-duties trigger and unique index reject a submitter or repeat approver here.

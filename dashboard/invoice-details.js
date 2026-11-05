@@ -503,7 +503,7 @@ function hideApproveForm() {
   drawer.querySelector('[data-action="Approve"]')?.focus();
 }
 
-function confirmApproval(inv, text, hasNext, next) {
+async function confirmApproval(inv, text, hasNext, next) {
   const error = document.getElementById('approve-error');
   const comment = document.getElementById('approve-comment');
   if (text.length < MIN_COMMENT) {
@@ -515,20 +515,16 @@ function confirmApproval(inv, text, hasNext, next) {
     return;
   }
 
-  const existing = loadInvoiceEdits()[inv.id] || {};
-  const edit = {
-    ...existing,
-    status: hasNext ? 'pending' : 'approved',
-    approvals: [...(existing.approvals || []), { by: user.name, comment: text, at: new Date().toISOString() }],
-  };
-  if (!saveInvoiceEdit(inv.id, edit)) {
-    error.textContent = 'This browser blocked saving, so the approval was not recorded.';
+  const button = document.querySelector('#approve-form .btn-primary');
+  button.disabled = true;
+  const result = await storeApprove(inv, text, hasNext, user.name);
+  button.disabled = false;
+  if (!result.ok) {
+    error.textContent = result.error;
     return;
   }
 
-  // Update the in-memory list, the dashboard and this panel.
-  const index = INVOICES.findIndex((i) => i.id === inv.id);
-  INVOICES[index] = applyInvoiceEdit(ORIGINAL_INVOICES[index], edit);
+  // The store has updated INVOICES; refresh the dashboard and this panel.
   render();
   document.getElementById('reset-demo').hidden = false;
   openInvoice(inv.id, null, { refresh: true });

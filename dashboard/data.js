@@ -2,16 +2,6 @@
 // so the aging buckets always look realistic. Replace with an API call, e.g.
 //   fetch('/api/invoices').then((r) => r.json())
 
-const STATUSES = [
-  { key: 'received', label: 'Received',         hint: 'Captured, awaiting review' },
-  { key: 'pending',  label: 'Pending approval', hint: 'With approvers' },
-  { key: 'approved', label: 'Approved',         hint: 'Ready to schedule' },
-  { key: 'scheduled',label: 'Scheduled',        hint: 'Payment run booked' },
-  { key: 'on_hold',  label: 'On hold',          hint: 'Exception / dispute' },
-  { key: 'paid',     label: 'Paid',             hint: 'Last 30 days' },
-  { key: 'rejected', label: 'Rejected',         hint: 'Last 30 days' },
-];
-
 // [invoice #, vendor, invoice-date offset, due-date offset, amount, status]
 const RAW_INVOICES = [
   ['INV-10421', 'Northwind Office Supply', -3,  27,   1240.50, 'received'],

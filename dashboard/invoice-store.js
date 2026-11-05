@@ -56,3 +56,35 @@ function applyInvoiceEdit(inv, edit) {
     edit,
   };
 }
+
+// ---------- store interface used by the pages ----------
+// The API version (api-data.js) has the same functions. Each returns a
+// promise of { ok, error }.
+
+async function storeSaveDraft(id, edit) {
+  return saveInvoiceEdit(id, edit)
+    ? { ok: true }
+    : { ok: false, error: 'This browser blocked saving. Your changes are only on this page.' };
+}
+
+async function storeSubmit(id, edit) {
+  return saveInvoiceEdit(id, edit)
+    ? { ok: true }
+    : { ok: false, error: 'This browser blocked saving, so the invoice could not be submitted.' };
+}
+
+// Records an approval for the waiting step and updates INVOICES in place.
+async function storeApprove(inv, comment, hasNext, approverName) {
+  const existing = loadInvoiceEdits()[inv.id] || {};
+  const edit = {
+    ...existing,
+    status: hasNext ? 'pending' : 'approved',
+    approvals: [...(existing.approvals || []), { by: approverName, comment, at: new Date().toISOString() }],
+  };
+  if (!saveInvoiceEdit(inv.id, edit)) {
+    return { ok: false, error: 'This browser blocked saving, so the approval was not recorded.' };
+  }
+  const index = INVOICES.findIndex((i) => i.id === inv.id);
+  INVOICES[index] = applyInvoiceEdit(ORIGINAL_INVOICES[index], edit);
+  return { ok: true };
+}
